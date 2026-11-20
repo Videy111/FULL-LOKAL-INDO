@@ -1435,12 +1435,6 @@ const fmt=s=>
 
 /* ====================================================
    RESUME SYSTEM V3
-   MENYIMPAN:
-   - VIDEO YANG SEDANG DITONTON
-   - POPUP / MAIN PLAYER
-   - POSISI VIDEO
-   - GATE BERIKUTNYA
-   - STATUS KEMBALI DARI DIRECT LINK
 ==================================================== */
 
 const RESUME_PREFIX="video_resume_v3_";
@@ -1508,9 +1502,6 @@ function writeResumeState(src,data){
  const raw=
   JSON.stringify(state);
 
- /*
-  LocalStorage = utama.
- */
  try{
 
   localStorage.setItem(
@@ -1520,9 +1511,6 @@ function writeResumeState(src,data){
 
  }catch(e){}
 
- /*
-  SessionStorage = cadangan.
- */
  try{
 
   sessionStorage.setItem(
@@ -1618,9 +1606,6 @@ function getResumeState(src){
  const data=
   candidates[0];
 
- /*
-  Hapus state lama.
- */
  if(
   data.savedAt &&
   Date.now()-data.savedAt>RESUME_TTL
@@ -1661,12 +1646,6 @@ function clearResumeState(src){
 
 }
 
-/*
-====================================================
-SIMPAN STATE POPUP
-====================================================
-*/
-
 function savePopupResume(
  src,
  title,
@@ -1689,12 +1668,6 @@ function savePopupResume(
 
 }
 
-/*
-====================================================
-SIMPAN STATE MAIN
-====================================================
-*/
-
 function saveMainResume(
  time,
  gateIndex,
@@ -1715,12 +1688,6 @@ function saveMainResume(
 
 }
 
-/*
-====================================================
-SEEK
-====================================================
-*/
-
 function seek(v,p,x){
 
  if(!v.duration)
@@ -1739,12 +1706,6 @@ function seek(v,p,x){
   )*v.duration;
 
 }
-
-/*
-====================================================
-FULLSCREEN
-====================================================
-*/
 
 async function fullscreen(el){
 
@@ -1774,13 +1735,9 @@ async function fullscreen(el){
 
  }
 
-}
-
-/*
-====================================================
-POPUP PLAYER
-====================================================
-*/
+/* ====================================================
+   POPUP PLAYER
+==================================================== */
 
 const galleryModal=
  $("galleryModal");
@@ -1821,11 +1778,9 @@ let galleryRestored=false;
 
 let galleryAutoRestore=false;
 
-/*
-====================================================
-POPUP CONTROLS
-====================================================
-*/
+/* ====================================================
+   POPUP CONTROLS
+==================================================== */
 
 function showGalleryControls(){
 
@@ -1986,11 +1941,9 @@ function updateGalleryTime(){
 
 }
 
-/*
-====================================================
-BUKA POPUP
-====================================================
-*/
+/* ====================================================
+   BUKA POPUP
+==================================================== */
 
 function openGalleryPlayer(
  src,
@@ -2059,13 +2012,6 @@ function openGalleryPlayer(
 
  galleryCenterPlay.textContent="▶";
 
- /*
-  Jika popup dibuka karena user baru
-  klik thumbnail, langsung coba play.
-  Jika dibuka karena resume setelah
-  kembali dari direct link, posisi akan
-  dipulihkan pada loadedmetadata.
- */
  const p=
   galleryVideo.play();
 
@@ -2082,11 +2028,67 @@ function openGalleryPlayer(
 
 }
 
-/*
-====================================================
-RESTORE POPUP
-====================================================
-*/
+/* ====================================================
+   AUTO RESUME POPUP - SEMUA PLATFORM
+==================================================== */
+
+function forceGalleryResume(){
+
+ if(
+  !galleryModal.classList.contains("show") ||
+  galleryOverlay.classList.contains("show") ||
+  galleryVideo.ended
+ )
+  return;
+
+ if(!galleryVideo.paused)
+  return;
+
+ const p=
+  galleryVideo.play();
+
+ if(
+  p &&
+  p.catch
+ ){
+
+  p.catch(()=>{});
+
+ }
+
+}
+
+function scheduleGalleryAutoResume(){
+
+ const delays=[
+  100,
+  300,
+  700,
+  1200,
+  2000
+ ];
+
+ delays.forEach(delay=>{
+
+  setTimeout(()=>{
+
+   if(
+    document.visibilityState==="visible"
+   ){
+
+    forceGalleryResume();
+
+   }
+
+  },delay);
+
+ });
+
+}
+
+/* ====================================================
+   RESTORE POPUP
+==================================================== */
 
 function restoreGalleryPosition(){
 
@@ -2135,12 +2137,6 @@ function restoreGalleryPosition(){
    )
   );
 
- /*
-  Karena popup masih hidup ketika user
-  kembali dari direct link, jangan paksa
-  currentTime kembali ke 15 kalau video
-  sebenarnya sudah berjalan ke 16+.
- */
  const alreadyProgressed=
   galleryVideo.currentTime>
   safeTime+0.75;
@@ -2163,13 +2159,6 @@ function restoreGalleryPosition(){
 
  galleryRestored=true;
 
- /*
-  Jangan hapus state.
-  Tandai bahwa state sudah dikonsumsi,
-  tetapi tetap simpan supaya jika Facebook
-  membuat ulang halaman beberapa saat
-  kemudian, popup masih bisa dipulihkan.
- */
  writeResumeState(
   galleryCurrentSource,
   {
@@ -2186,44 +2175,20 @@ function restoreGalleryPosition(){
  updateGalleryTime();
 
  /*
-  Coba otomatis lanjut.
-  Jika browser memblokir autoplay,
-  posisi video tetap sudah benar.
+  Coba otomatis lanjut beberapa kali.
+  Ini membantu Facebook, Telegram, X,
+  dan browser biasa setelah kembali
+  dari halaman direct link.
  */
- setTimeout(()=>{
-
-  if(
-   galleryModal.classList.contains(
-    "show"
-   ) &&
-   galleryVideo.paused &&
-   !galleryOverlay.classList.contains(
-    "show"
-   )
-  ){
-
-   const p=
-    galleryVideo.play();
-
-   if(
-    p &&
-    p.catch
-   )
-    p.catch(()=>{});
-
-  }
-
- },120);
+ scheduleGalleryAutoResume();
 
  return true;
 
 }
 
-/*
-====================================================
-TUTUP POPUP
-====================================================
-*/
+/* ====================================================
+   TUTUP POPUP
+==================================================== */
 
 function closeGalleryPlayer(){
 
@@ -2231,10 +2196,6 @@ function closeGalleryPlayer(){
   galleryControlsTimer
  );
 
- /*
-  Jika popup sedang ditonton dan belum
-  mencapai gate, simpan posisi terakhir.
- */
  if(
   galleryCurrentSource &&
   galleryVideo.duration &&
@@ -2441,12 +2402,6 @@ galleryVideo.addEventListener(
 
   updateGalleryTime();
 
-  /*
-   Ini bagian penting.
-   Kalau popup dibuka ulang setelah
-   Facebook/browser membuat halaman baru,
-   posisi popup dikembalikan di sini.
-  */
   restoreGalleryPosition();
 
  }
@@ -2508,11 +2463,9 @@ galleryVideo.addEventListener(
  }
 );
 
-/*
-====================================================
-GATE POPUP
-====================================================
-*/
+/* ====================================================
+   GATE POPUP
+==================================================== */
 
 galleryVideo.addEventListener(
  "timeupdate",
@@ -2530,12 +2483,6 @@ galleryVideo.addEventListener(
 
    galleryGateIndex++;
 
-   /*
-    Simpan EXACT posisi gate.
-    Misalnya gate 15:
-    time=15
-    gateIndex=1
-   */
    savePopupResume(
     galleryCurrentSource,
     galleryCurrentTitle,
@@ -2570,11 +2517,9 @@ galleryVideo.addEventListener(
  }
 );
 
-/*
-====================================================
-PROGRESS POPUP
-====================================================
-*/
+/* ====================================================
+   PROGRESS POPUP
+==================================================== */
 
 let gallerySeeking=false;
 
@@ -2682,31 +2627,14 @@ galleryProgress.addEventListener(
  }
 );
 
-/*
-====================================================
-LANJUTKAN POPUP
-====================================================
-*/
+/* ====================================================
+   LANJUTKAN POPUP
+==================================================== */
 
 $("galleryContinueButton")
 .addEventListener(
  "click",
  ()=>{
-
-  /*
-   SANGAT PENTING:
-
-   Sebelum direct link dibuka, simpan:
-   - source video
-   - judul
-   - posisi gate
-   - gate berikutnya
-   - playerType = gallery
-   - returnPending = true
-
-   Jadi ketika halaman dibuat ulang,
-   sistem tahu popup mana yang harus dibuka.
-  */
 
   const savedTime=
    galleryGateIndex>0
@@ -2723,11 +2651,6 @@ $("galleryContinueButton")
    true
   );
 
-  /*
-   Overlay ditutup di halaman lama.
-   Link <a target="_blank"> di HTML
-   akan menangani pembukaan direct link.
-  */
   galleryOverlay.classList.remove(
    "show"
   );
@@ -2740,19 +2663,12 @@ $("galleryContinueButton")
    "hidden"
   );
 
-  /*
-   JANGAN window.open() lagi di sini.
-   Karena <a> sudah memiliki target="_blank".
-  */
-
  }
 );
 
-/*
-====================================================
-FULLSCREEN POPUP
-====================================================
-*/
+/* ====================================================
+   FULLSCREEN POPUP
+==================================================== */
 
 $("galleryFullscreen")
 .addEventListener(
@@ -2842,11 +2758,9 @@ document.addEventListener(
  }
 );
 
-/*
-====================================================
-THUMBNAIL CARD
-====================================================
-*/
+/* ====================================================
+   THUMBNAIL CARD
+==================================================== */
 
 function makeThumbCard(
  src,
@@ -3005,11 +2919,9 @@ function makeThumbCard(
 
 }
 
-/*
-====================================================
-PLAYER UTAMA
-====================================================
-*/
+/* ====================================================
+   PLAYER UTAMA
+==================================================== */
 
 const shell=
  $("mainPlayer");
@@ -3170,11 +3082,9 @@ center.onclick=
 play.onclick=
  toggleMain;
 
-/*
-====================================================
-RESTORE PLAYER UTAMA
-====================================================
-*/
+/* ====================================================
+   RESTORE PLAYER UTAMA
+==================================================== */
 
 function restoreMainVideoPosition(){
 
@@ -3233,9 +3143,6 @@ function restoreMainVideoPosition(){
 
  resumeRestored=true;
 
- /*
-  Tandai bahwa state sudah dipakai.
- */
  saveMainResume(
   safeTime,
   gateIndex,
@@ -3244,9 +3151,6 @@ function restoreMainVideoPosition(){
 
  updateMainPlay();
 
- /*
-  Coba otomatis lanjut.
- */
  setTimeout(()=>{
 
   if(
@@ -3268,11 +3172,9 @@ function restoreMainVideoPosition(){
 
 }
 
-/*
-====================================================
-EVENT PLAYER UTAMA
-====================================================
-*/
+/* ====================================================
+   EVENT PLAYER UTAMA
+==================================================== */
 
 video.addEventListener(
  "play",
@@ -3348,9 +3250,6 @@ video.addEventListener(
 
    gateIndex++;
 
-   /*
-    Simpan gate.
-   */
    saveMainResume(
     gatePosition,
     gateIndex,
@@ -3484,25 +3383,14 @@ progress.onkeydown=e=>{
 
 };
 
-/*
-====================================================
-LANJUTKAN PLAYER UTAMA
-====================================================
-*/
+/* ====================================================
+   LANJUTKAN PLAYER UTAMA
+==================================================== */
 
 $("mainContinueButton")
 .addEventListener(
  "click",
  ()=>{
-
-  /*
-   Simpan posisi gate terakhir.
-   ReturnPending = TRUE.
-
-   Kalau Facebook membuat ulang
-   halaman, state ini yang akan membuat
-   video utama kembali ke posisi tadi.
-  */
 
   const savedTime=
    gateIndex>0
@@ -3528,11 +3416,6 @@ $("mainContinueButton")
   center.classList.add(
    "hidden"
   );
-
-  /*
-   Tidak ada window.open() di sini.
-   <a target="_blank> akan membuka link.
-  */
 
  }
 );
@@ -3585,11 +3468,9 @@ document.addEventListener(
  }
 );
 
-/*
-====================================================
-SEMUA VIDEO
-====================================================
-*/
+/* ====================================================
+   SEMUA VIDEO
+==================================================== */
 
 const mainGrid=
  $("mainThumbGrid");
@@ -3738,25 +3619,9 @@ mainList.forEach(
  }
 );
 
-/*
-====================================================
-AUTO RESTORE POPUP
-====================================================
-
-Bagian ini yang paling penting.
-
-Ketika Facebook / browser membuat ulang
-halaman setelah user kembali dari direct
-link, sistem mencari video popup yang
-terakhir disimpan dengan returnPending=true.
-
-Kalau ketemu:
-1. Popup otomatis dibuka.
-2. Source video yang sama dipasang.
-3. loadedmetadata mengembalikan posisi.
-4. Gate berikutnya dikembalikan.
-====================================================
-*/
+/* ====================================================
+   AUTO RESTORE POPUP
+==================================================== */
 
 function findPendingPopup(){
 
@@ -3800,10 +3665,6 @@ function findPendingPopup(){
 
 function restorePendingPopup(){
 
- /*
-  Jangan membuka popup kalau popup
-  sudah sedang terbuka.
- */
  if(
   galleryModal.classList.contains(
    "show"
@@ -3817,9 +3678,6 @@ function restorePendingPopup(){
  if(!pending)
   return;
 
- /*
-  Buka popup video yang SAMA.
- */
  openGalleryPlayer(
   pending.source,
   pending.title,
@@ -3828,19 +3686,9 @@ function restorePendingPopup(){
 
 }
 
-/*
-====================================================
-PAGESHOW
-====================================================
-
-pageshow sangat penting untuk:
-- Facebook in-app browser
-- Telegram browser
-- X browser
-- browser biasa
-- BFCache
-====================================================
-*/
+/* ====================================================
+   PAGESHOW
+==================================================== */
 
 window.addEventListener(
  "pageshow",
@@ -3848,21 +3696,17 @@ window.addEventListener(
 
   setTimeout(()=>{
 
-   /*
-    Jika yang sedang ditonton adalah
-    popup, pulihkan popup.
-   */
    restorePendingPopup();
 
-   /*
-    Untuk main player juga tetap
-    coba restore.
-   */
    if(
-    !galleryModal.classList.contains(
+    galleryModal.classList.contains(
      "show"
     )
    ){
+
+    scheduleGalleryAutoResume();
+
+   }else{
 
     restoreMainVideoPosition();
 
@@ -3873,33 +3717,29 @@ window.addEventListener(
  }
 );
 
-/*
-====================================================
-VISIBILITY CHANGE
-====================================================
-
-Jika user berpindah ke direct link,
-state popup tetap aman.
-====================================================
-*/
+/* ====================================================
+   VISIBILITY CHANGE
+==================================================== */
 
 document.addEventListener(
  "visibilitychange",
  ()=>{
 
   if(
+   document.visibilityState==="visible"
+  ){
+
+   scheduleGalleryAutoResume();
+
+   return;
+
+  }
+
+  if(
    document.visibilityState!=="hidden"
   )
    return;
 
-  /*
-   Kalau popup sedang menampilkan gate,
-   simpan state dengan returnPending
-   tetap FALSE.
-
-   Ketika tombol direct link ditekan,
-   event click akan mengubahnya TRUE.
-  */
   if(
    galleryCurrentSource &&
    galleryOverlay.classList.contains(
@@ -3948,22 +3788,35 @@ document.addEventListener(
  }
 );
 
-/*
-====================================================
-PAGEHIDE
-====================================================
-*/
+/* ====================================================
+   FOCUS
+==================================================== */
+
+window.addEventListener(
+ "focus",
+ ()=>{
+
+  if(
+   galleryModal.classList.contains(
+    "show"
+   )
+  ){
+
+   scheduleGalleryAutoResume();
+
+  }
+
+ }
+);
+
+/* ====================================================
+   PAGEHIDE
+==================================================== */
 
 window.addEventListener(
  "pagehide",
  ()=>{
 
-  /*
-   Jangan menghapus state.
-   State dibutuhkan ketika user kembali
-   dari direct link.
-  */
-
   if(
    galleryCurrentSource &&
    galleryOverlay.classList.contains(
@@ -4012,11 +3865,9 @@ window.addEventListener(
  }
 );
 
-/*
-====================================================
-SHARE
-====================================================
-*/
+/* ====================================================
+   SHARE
+==================================================== */
 
 $("shareButton").onclick=
  async()=>{
@@ -4056,18 +3907,9 @@ $("shareButton").onclick=
 
  };
 
-/*
-====================================================
-JALANKAN RESTORE SETELAH SEMUA
-SELESAI DIBUAT
-====================================================
-
-Kita beri jeda sedikit agar:
-- thumbnail sudah dibuat
-- mainList sudah tersedia
-- popup siap dibuka
-====================================================
-*/
+/* ====================================================
+   JALANKAN RESTORE
+==================================================== */
 
 setTimeout(
  ()=>{
