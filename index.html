@@ -1434,53 +1434,125 @@ const fmt=s=>
  :Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
 
 /* ====================================================
-   RESUME SYSTEM
-   POSISI DISIMPAN PER VIDEO
+   RESUME SYSTEM V3
+   MENYIMPAN:
+   - VIDEO YANG SEDANG DITONTON
+   - POPUP / MAIN PLAYER
+   - POSISI VIDEO
+   - GATE BERIKUTNYA
+   - STATUS KEMBALI DARI DIRECT LINK
 ==================================================== */
 
-const RESUME_PREFIX="video_resume_v2_";
+const RESUME_PREFIX="video_resume_v3_";
+
+const RESUME_TTL=
+ 6*60*60*1000;
 
 function resumeKey(src){
- return RESUME_PREFIX + btoa(unescape(encodeURIComponent(src)))
-  .replace(/[^a-zA-Z0-9]/g,"")
-  .slice(0,100);
-}
 
-function saveResumeState(src,time,gateIndex){
+ let encoded="";
 
  try{
 
+  encoded=
+   btoa(
+    unescape(
+     encodeURIComponent(src)
+    )
+   );
+
+ }catch(e){
+
+  encoded=
+   src.replace(/[^a-zA-Z0-9]/g,"");
+
+ }
+
+ return RESUME_PREFIX+
+  encoded
+   .replace(/[^a-zA-Z0-9]/g,"")
+   .slice(0,100);
+
+}
+
+function writeResumeState(src,data){
+
+ if(!src)
+  return;
+
+ const state={
+  source:src,
+  time:Math.max(
+   0,
+   Number(data.time)||0
+  ),
+  gateIndex:Math.max(
+   0,
+   Number(data.gateIndex)||0
+  ),
+  playerType:
+   data.playerType==="gallery"
+    ?"gallery"
+    :"main",
+  title:
+   typeof data.title==="string"
+    ?data.title
+    :"Video",
+  returnPending:
+   Boolean(data.returnPending),
+  savedAt:Date.now()
+ };
+
+ const key=resumeKey(src);
+
+ const raw=
+  JSON.stringify(state);
+
+ /*
+  LocalStorage = utama.
+ */
+ try{
+
   localStorage.setItem(
-   resumeKey(src),
-   JSON.stringify({
-    time:Math.max(0,Number(time)||0),
-    gateIndex:Number(gateIndex)||0,
-    source:src,
-    savedAt:Date.now()
-   })
+   key,
+   raw
+  );
+
+ }catch(e){}
+
+ /*
+  SessionStorage = cadangan.
+ */
+ try{
+
+  sessionStorage.setItem(
+   key,
+   raw
   );
 
  }catch(e){}
 
 }
 
-function getResumeState(src){
+function readStorageState(
+ storage,
+ key
+){
 
  try{
 
   const raw=
-   localStorage.getItem(
-    resumeKey(src)
-   );
+   storage.getItem(key);
 
   if(!raw)
    return null;
 
-  const data=JSON.parse(raw);
+  const data=
+   JSON.parse(raw);
 
   if(
    !data ||
-   data.source!==src ||
+   !data.source ||
    !Number.isFinite(data.time)
   ){
 
@@ -1498,15 +1570,148 @@ function getResumeState(src){
 
 }
 
-function clearResumeState(src){
+function getResumeState(src){
+
+ if(!src)
+  return null;
+
+ const key=
+  resumeKey(src);
+
+ const candidates=[];
 
  try{
 
-  localStorage.removeItem(
-   resumeKey(src)
-  );
+  const local=
+   readStorageState(
+    localStorage,
+    key
+   );
+
+  if(local)
+   candidates.push(local);
 
  }catch(e){}
+
+ try{
+
+  const session=
+   readStorageState(
+    sessionStorage,
+    key
+   );
+
+  if(session)
+   candidates.push(session);
+
+ }catch(e){}
+
+ if(!candidates.length)
+  return null;
+
+ candidates.sort(
+  (a,b)=>
+   Number(b.savedAt||0)-
+   Number(a.savedAt||0)
+ );
+
+ const data=
+  candidates[0];
+
+ /*
+  Hapus state lama.
+ */
+ if(
+  data.savedAt &&
+  Date.now()-data.savedAt>RESUME_TTL
+ ){
+
+  clearResumeState(src);
+
+  return null;
+
+ }
+
+ if(data.source!==src)
+  return null;
+
+ return data;
+
+}
+
+function clearResumeState(src){
+
+ if(!src)
+  return;
+
+ const key=
+  resumeKey(src);
+
+ try{
+
+  localStorage.removeItem(key);
+
+ }catch(e){}
+
+ try{
+
+  sessionStorage.removeItem(key);
+
+ }catch(e){}
+
+}
+
+/*
+====================================================
+SIMPAN STATE POPUP
+====================================================
+*/
+
+function savePopupResume(
+ src,
+ title,
+ time,
+ gateIndex,
+ returnPending
+){
+
+ writeResumeState(
+  src,
+  {
+   time:time,
+   gateIndex:gateIndex,
+   playerType:"gallery",
+   title:title||"Video",
+   returnPending:
+    Boolean(returnPending)
+  }
+ );
+
+}
+
+/*
+====================================================
+SIMPAN STATE MAIN
+====================================================
+*/
+
+function saveMainResume(
+ time,
+ gateIndex,
+ returnPending
+){
+
+ writeResumeState(
+  MAIN_SOURCE,
+  {
+   time:time,
+   gateIndex:gateIndex,
+   playerType:"main",
+   title:"Video Utama",
+   returnPending:
+    Boolean(returnPending)
+  }
+ );
 
 }
 
@@ -1518,18 +1723,20 @@ SEEK
 
 function seek(v,p,x){
 
- if(!v.duration)return;
+ if(!v.duration)
+  return;
 
- const r=p.getBoundingClientRect();
+ const r=
+  p.getBoundingClientRect();
 
  v.currentTime=
- Math.max(
-  0,
-  Math.min(
-   1,
-   (x-r.left)/r.width
-  )
- )*v.duration;
+  Math.max(
+   0,
+   Math.min(
+    1,
+    (x-r.left)/r.width
+   )
+  )*v.duration;
 
 }
 
@@ -1553,13 +1760,17 @@ async function fullscreen(el){
 
   }else{
 
-   el.classList.toggle("is-fullscreen");
+   el.classList.toggle(
+    "is-fullscreen"
+   );
 
   }
 
  }catch(e){
 
-  el.classList.toggle("is-fullscreen");
+  el.classList.toggle(
+   "is-fullscreen"
+  );
 
  }
 
@@ -1571,56 +1782,115 @@ POPUP PLAYER
 ====================================================
 */
 
-const galleryModal=$("galleryModal");
-const galleryVideo=$("galleryVideo");
-const galleryShell=$("galleryVideoShell");
-const galleryOverlay=$("galleryVideoOverlay");
-const galleryPlay=$("galleryPlay");
-const galleryProgress=$("galleryProgress");
-const galleryProgressFill=$("galleryProgressFill");
-const galleryTime=$("galleryTime");
-const galleryCenterPlay=$("galleryCenterPlay");
+const galleryModal=
+ $("galleryModal");
+
+const galleryVideo=
+ $("galleryVideo");
+
+const galleryShell=
+ $("galleryVideoShell");
+
+const galleryOverlay=
+ $("galleryVideoOverlay");
+
+const galleryPlay=
+ $("galleryPlay");
+
+const galleryProgress=
+ $("galleryProgress");
+
+const galleryProgressFill=
+ $("galleryProgressFill");
+
+const galleryTime=
+ $("galleryTime");
+
+const galleryCenterPlay=
+ $("galleryCenterPlay");
 
 let galleryGateIndex=0;
+
 let galleryControlsTimer=null;
+
 let galleryCurrentSource="";
+
+let galleryCurrentTitle="Video";
+
+let galleryRestored=false;
+
+let galleryAutoRestore=false;
+
+/*
+====================================================
+POPUP CONTROLS
+====================================================
+*/
 
 function showGalleryControls(){
 
- clearTimeout(galleryControlsTimer);
+ clearTimeout(
+  galleryControlsTimer
+ );
 
- if(galleryOverlay.classList.contains("show")){
+ if(
+  galleryOverlay.classList.contains(
+   "show"
+  )
+ ){
 
-  galleryShell.classList.add("controls-hidden");
-  galleryCenterPlay.classList.add("hidden");
+  galleryShell.classList.add(
+   "controls-hidden"
+  );
+
+  galleryCenterPlay.classList.add(
+   "hidden"
+  );
 
   return;
 
  }
 
- galleryShell.classList.remove("controls-hidden");
+ galleryShell.classList.remove(
+  "controls-hidden"
+ );
 
- galleryCenterPlay.classList.remove("hidden");
+ galleryCenterPlay.classList.remove(
+  "hidden"
+ );
 
  galleryCenterPlay.textContent=
- galleryVideo.paused?"▶":"Ⅱ";
+  galleryVideo.paused
+   ?"▶"
+   :"Ⅱ";
 
- if(!galleryVideo.paused&&!galleryVideo.ended){
+ if(
+  !galleryVideo.paused &&
+  !galleryVideo.ended
+ ){
 
-  galleryControlsTimer=setTimeout(()=>{
+  galleryControlsTimer=
+   setTimeout(()=>{
 
-   if(
-    !galleryVideo.paused &&
-    !galleryVideo.ended &&
-    !galleryOverlay.classList.contains("show")
-   ){
+    if(
+     !galleryVideo.paused &&
+     !galleryVideo.ended &&
+     !galleryOverlay.classList.contains(
+      "show"
+     )
+    ){
 
-    galleryShell.classList.add("controls-hidden");
-    galleryCenterPlay.classList.add("hidden");
+     galleryShell.classList.add(
+      "controls-hidden"
+     );
 
-   }
+     galleryCenterPlay.classList.add(
+      "hidden"
+     );
 
-  },2200);
+    }
+
+   },2200);
 
  }
 
@@ -1629,28 +1899,53 @@ function showGalleryControls(){
 function updateGalleryPlay(){
 
  galleryPlay.textContent=
- galleryVideo.paused?"▶":"Ⅱ";
+  galleryVideo.paused
+   ?"▶"
+   :"Ⅱ";
 
  galleryCenterPlay.textContent=
- galleryVideo.paused?"▶":"Ⅱ";
+  galleryVideo.paused
+   ?"▶"
+   :"Ⅱ";
 
- if(galleryOverlay.classList.contains("show")){
+ if(
+  galleryOverlay.classList.contains(
+   "show"
+  )
+ ){
 
-  galleryShell.classList.add("controls-hidden");
-  galleryCenterPlay.classList.add("hidden");
+  galleryShell.classList.add(
+   "controls-hidden"
+  );
 
-  clearTimeout(galleryControlsTimer);
+  galleryCenterPlay.classList.add(
+   "hidden"
+  );
+
+  clearTimeout(
+   galleryControlsTimer
+  );
 
   return;
 
  }
 
- if(galleryVideo.paused||galleryVideo.ended){
+ if(
+  galleryVideo.paused ||
+  galleryVideo.ended
+ ){
 
-  clearTimeout(galleryControlsTimer);
+  clearTimeout(
+   galleryControlsTimer
+  );
 
-  galleryShell.classList.remove("controls-hidden");
-  galleryCenterPlay.classList.remove("hidden");
+  galleryShell.classList.remove(
+   "controls-hidden"
+  );
+
+  galleryCenterPlay.classList.remove(
+   "hidden"
+  );
 
  }else{
 
@@ -1662,13 +1957,21 @@ function updateGalleryPlay(){
 
 function updateGalleryTime(){
 
- const duration=galleryVideo.duration;
- const current=galleryVideo.currentTime||0;
+ const duration=
+  galleryVideo.duration;
 
- if(Number.isFinite(duration)&&duration>0){
+ const current=
+  galleryVideo.currentTime||0;
+
+ if(
+  Number.isFinite(duration) &&
+  duration>0
+ ){
 
   galleryTime.textContent=
-   fmt(current)+" / "+fmt(duration);
+   fmt(current)+
+   " / "+
+   fmt(duration);
 
   galleryProgressFill.style.width=
    (current/duration*100)+"%";
@@ -1676,61 +1979,122 @@ function updateGalleryTime(){
  }else{
 
   galleryTime.textContent=
-   fmt(current)+" / 0:00";
+   fmt(current)+
+   " / 0:00";
 
  }
 
 }
 
-function openGalleryPlayer(src,title){
+/*
+====================================================
+BUKA POPUP
+====================================================
+*/
+
+function openGalleryPlayer(
+ src,
+ title,
+ autoResume=false
+){
 
  galleryGateIndex=0;
+
  galleryCurrentSource=src;
 
- clearTimeout(galleryControlsTimer);
+ galleryCurrentTitle=
+  title||"Video";
 
- galleryShell.classList.remove("controls-hidden");
+ galleryRestored=false;
 
- galleryOverlay.classList.remove("show");
+ galleryAutoRestore=
+  Boolean(autoResume);
 
- galleryModal.classList.add("show");
+ clearTimeout(
+  galleryControlsTimer
+ );
+
+ galleryShell.classList.remove(
+  "controls-hidden"
+ );
+
+ galleryOverlay.classList.remove(
+  "show"
+ );
+
+ galleryModal.classList.add(
+  "show"
+ );
 
  galleryModal.setAttribute(
   "aria-hidden",
   "false"
  );
 
- document.body.classList.add("modal-open");
+ document.body.classList.add(
+  "modal-open"
+ );
 
  galleryVideo.pause();
+
+ galleryVideo.removeAttribute(
+  "src"
+ );
 
  galleryVideo.src=src;
 
  galleryVideo.load();
 
- galleryProgressFill.style.width="0%";
+ galleryProgressFill.style.width=
+  "0%";
 
- galleryTime.textContent="0:00 / 0:00";
+ galleryTime.textContent=
+  "0:00 / 0:00";
 
  galleryPlay.textContent="▶";
 
- galleryCenterPlay.classList.remove("hidden");
+ galleryCenterPlay.classList.remove(
+  "hidden"
+ );
 
  galleryCenterPlay.textContent="▶";
 
- const p=galleryVideo.play();
+ /*
+  Jika popup dibuka karena user baru
+  klik thumbnail, langsung coba play.
+  Jika dibuka karena resume setelah
+  kembali dari direct link, posisi akan
+  dipulihkan pada loadedmetadata.
+ */
+ const p=
+  galleryVideo.play();
 
- if(p&&p.catch)
+ if(
+  p &&
+  p.catch
+ ){
+
   p.catch(()=>{
    updateGalleryPlay();
   });
 
+ }
+
 }
+
+/*
+====================================================
+RESTORE POPUP
+====================================================
+*/
 
 function restoreGalleryPosition(){
 
  if(!galleryCurrentSource)
-  return;
+  return false;
+
+ if(galleryRestored)
+  return true;
 
  const saved=
   getResumeState(
@@ -1738,71 +2102,231 @@ function restoreGalleryPosition(){
   );
 
  if(!saved)
-  return;
+  return false;
 
  if(
-  !Number.isFinite(galleryVideo.duration) ||
+  saved.playerType!=="gallery"
+ )
+  return false;
+
+ if(
+  !saved.returnPending &&
+  !galleryAutoRestore
+ )
+  return false;
+
+ if(
+  !Number.isFinite(
+   galleryVideo.duration
+  ) ||
   galleryVideo.duration<=0
  )
-  return;
+  return false;
 
  const safeTime=
   Math.min(
-   saved.time,
-   Math.max(0,galleryVideo.duration-.2)
+   Math.max(
+    0,
+    Number(saved.time)||0
+   ),
+   Math.max(
+    0,
+    galleryVideo.duration-.2
+   )
   );
 
- if(safeTime>0){
+ /*
+  Karena popup masih hidup ketika user
+  kembali dari direct link, jangan paksa
+  currentTime kembali ke 15 kalau video
+  sebenarnya sudah berjalan ke 16+.
+ */
+ const alreadyProgressed=
+  galleryVideo.currentTime>
+  safeTime+0.75;
 
-  galleryVideo.currentTime=safeTime;
+ if(!alreadyProgressed){
 
-  galleryGateIndex=
-   Math.min(
-    GATE_TIMES.length,
-    Number(saved.gateIndex)||0
-   );
+  galleryVideo.currentTime=
+   safeTime;
 
  }
 
- clearResumeState(
-  galleryCurrentSource
+ galleryGateIndex=
+  Math.min(
+   GATE_TIMES.length,
+   Math.max(
+    0,
+    Number(saved.gateIndex)||0
+   )
+  );
+
+ galleryRestored=true;
+
+ /*
+  Jangan hapus state.
+  Tandai bahwa state sudah dikonsumsi,
+  tetapi tetap simpan supaya jika Facebook
+  membuat ulang halaman beberapa saat
+  kemudian, popup masih bisa dipulihkan.
+ */
+ writeResumeState(
+  galleryCurrentSource,
+  {
+   time:safeTime,
+   gateIndex:galleryGateIndex,
+   playerType:"gallery",
+   title:
+    saved.title||
+    galleryCurrentTitle,
+   returnPending:false
+  }
  );
+
+ updateGalleryTime();
+
+ /*
+  Coba otomatis lanjut.
+  Jika browser memblokir autoplay,
+  posisi video tetap sudah benar.
+ */
+ setTimeout(()=>{
+
+  if(
+   galleryModal.classList.contains(
+    "show"
+   ) &&
+   galleryVideo.paused &&
+   !galleryOverlay.classList.contains(
+    "show"
+   )
+  ){
+
+   const p=
+    galleryVideo.play();
+
+   if(
+    p &&
+    p.catch
+   )
+    p.catch(()=>{});
+
+  }
+
+ },120);
+
+ return true;
 
 }
 
+/*
+====================================================
+TUTUP POPUP
+====================================================
+*/
+
 function closeGalleryPlayer(){
 
- clearTimeout(galleryControlsTimer);
+ clearTimeout(
+  galleryControlsTimer
+ );
 
- if(document.fullscreenElement===galleryShell){
+ /*
+  Jika popup sedang ditonton dan belum
+  mencapai gate, simpan posisi terakhir.
+ */
+ if(
+  galleryCurrentSource &&
+  galleryVideo.duration &&
+  !galleryVideo.ended
+ ){
 
-  document.exitFullscreen().catch(()=>{});
+  const saved=
+   getResumeState(
+    galleryCurrentSource
+   );
+
+  if(
+   !galleryOverlay.classList.contains(
+    "show"
+   )
+  ){
+
+   savePopupResume(
+    galleryCurrentSource,
+    galleryCurrentTitle,
+    galleryVideo.currentTime,
+    galleryGateIndex,
+    false
+   );
+
+  }else if(saved){
+
+   savePopupResume(
+    galleryCurrentSource,
+    galleryCurrentTitle,
+    saved.time,
+    saved.gateIndex,
+    saved.returnPending
+   );
+
+  }
+
+ }
+
+ if(
+  document.fullscreenElement===
+  galleryShell
+ ){
+
+  document.exitFullscreen().catch(
+   ()=>{}
+  );
 
  }
 
  galleryVideo.pause();
 
- galleryVideo.removeAttribute("src");
+ galleryVideo.removeAttribute(
+  "src"
+ );
 
  galleryVideo.load();
 
- galleryOverlay.classList.remove("show");
+ galleryOverlay.classList.remove(
+  "show"
+ );
 
- galleryShell.classList.remove("controls-hidden");
+ galleryShell.classList.remove(
+  "controls-hidden"
+ );
 
- galleryModal.classList.remove("show");
+ galleryModal.classList.remove(
+  "show"
+ );
 
  galleryModal.setAttribute(
   "aria-hidden",
   "true"
  );
 
- document.body.classList.remove("modal-open");
+ document.body.classList.remove(
+  "modal-open"
+ );
 
  galleryGateIndex=0;
+
  galleryCurrentSource="";
 
- galleryCenterPlay.classList.remove("hidden");
+ galleryCurrentTitle="Video";
+
+ galleryRestored=false;
+
+ galleryAutoRestore=false;
+
+ galleryCenterPlay.classList.remove(
+  "hidden"
+ );
 
  galleryCenterPlay.textContent="▶";
 
@@ -1812,12 +2336,21 @@ function closeGalleryPlayer(){
 
 function toggleGalleryPlay(){
 
- if(galleryOverlay.classList.contains("show"))
+ if(
+  galleryOverlay.classList.contains(
+   "show"
+  )
+ )
   return;
 
- if(galleryVideo.paused||galleryVideo.ended){
+ if(
+  galleryVideo.paused ||
+  galleryVideo.ended
+ ){
 
-  galleryVideo.play().catch(()=>{});
+  galleryVideo.play().catch(
+   ()=>{}
+  );
 
  }else{
 
@@ -1836,8 +2369,12 @@ $("galleryModalClose")
 galleryModal.addEventListener(
  "click",
  e=>{
-  if(e.target===galleryModal)
+
+  if(
+   e.target===galleryModal
+  )
    closeGalleryPlayer();
+
  }
 );
 
@@ -1847,7 +2384,9 @@ document.addEventListener(
 
   if(
    e.key==="Escape" &&
-   galleryModal.classList.contains("show")
+   galleryModal.classList.contains(
+    "show"
+   )
   ){
 
    closeGalleryPlayer();
@@ -1881,10 +2420,15 @@ galleryVideo.addEventListener(
  "ended",
  ()=>{
 
-  if(galleryCurrentSource)
+  if(
+   galleryCurrentSource
+  ){
+
    clearResumeState(
     galleryCurrentSource
    );
+
+  }
 
   updateGalleryPlay();
 
@@ -1896,6 +2440,13 @@ galleryVideo.addEventListener(
  ()=>{
 
   updateGalleryTime();
+
+  /*
+   Ini bagian penting.
+   Kalau popup dibuka ulang setelah
+   Facebook/browser membuat halaman baru,
+   posisi popup dikembalikan di sini.
+  */
   restoreGalleryPosition();
 
  }
@@ -1915,13 +2466,25 @@ galleryShell.addEventListener(
  "pointerdown",
  e=>{
 
-  if(galleryOverlay.classList.contains("show"))
+  if(
+   galleryOverlay.classList.contains(
+    "show"
+   )
+  )
    return;
 
-  if(e.target.closest(".gallery-video-overlay"))
+  if(
+   e.target.closest(
+    ".gallery-video-overlay"
+   )
+  )
    return;
 
-  if(e.target.closest("#galleryModalClose"))
+  if(
+   e.target.closest(
+    "#galleryModalClose"
+   )
+  )
    return;
 
   showGalleryControls();
@@ -1933,7 +2496,11 @@ galleryVideo.addEventListener(
  "click",
  ()=>{
 
-  if(galleryOverlay.classList.contains("show"))
+  if(
+   galleryOverlay.classList.contains(
+    "show"
+   )
+  )
    return;
 
   showGalleryControls();
@@ -1952,8 +2519,10 @@ galleryVideo.addEventListener(
  ()=>{
 
   if(
-   galleryGateIndex<GATE_TIMES.length &&
-   galleryVideo.currentTime>=GATE_TIMES[galleryGateIndex]
+   galleryGateIndex<
+   GATE_TIMES.length &&
+   galleryVideo.currentTime>=
+   GATE_TIMES[galleryGateIndex]
   ){
 
    const gatePosition=
@@ -1961,10 +2530,18 @@ galleryVideo.addEventListener(
 
    galleryGateIndex++;
 
-   saveResumeState(
+   /*
+    Simpan EXACT posisi gate.
+    Misalnya gate 15:
+    time=15
+    gateIndex=1
+   */
+   savePopupResume(
     galleryCurrentSource,
+    galleryCurrentTitle,
     gatePosition,
-    galleryGateIndex
+    galleryGateIndex,
+    false
    );
 
    galleryVideo.currentTime=
@@ -1972,13 +2549,21 @@ galleryVideo.addEventListener(
 
    galleryVideo.pause();
 
-   clearTimeout(galleryControlsTimer);
+   clearTimeout(
+    galleryControlsTimer
+   );
 
-   galleryShell.classList.add("controls-hidden");
+   galleryShell.classList.add(
+    "controls-hidden"
+   );
 
-   galleryCenterPlay.classList.add("hidden");
+   galleryCenterPlay.classList.add(
+    "hidden"
+   );
 
-   galleryOverlay.classList.add("show");
+   galleryOverlay.classList.add(
+    "show"
+   );
 
   }
 
@@ -2056,7 +2641,9 @@ galleryProgress.addEventListener(
  "click",
  e=>{
 
-  if(e.pointerType==="mouse")
+  if(
+   e.pointerType==="mouse"
+  )
    gallerySeekFromPointer(e);
 
  }
@@ -2067,7 +2654,9 @@ galleryProgress.addEventListener(
  e=>{
 
   if(
-   ["ArrowRight","ArrowLeft"].includes(e.key)
+   ["ArrowRight","ArrowLeft"].includes(
+    e.key
+   )
   ){
 
    e.preventDefault();
@@ -2078,7 +2667,11 @@ galleryProgress.addEventListener(
      Math.min(
       galleryVideo.duration||0,
       galleryVideo.currentTime+
-      (e.key==="ArrowRight"?5:-5)
+      (
+       e.key==="ArrowRight"
+        ?5
+        :-5
+      )
      )
     );
 
@@ -2095,33 +2688,62 @@ LANJUTKAN POPUP
 ====================================================
 */
 
-$("galleryContinueButton").addEventListener(
+$("galleryContinueButton")
+.addEventListener(
  "click",
  ()=>{
 
   /*
-   SIMPAN POSISI SEBELUM MENUJU DIRECT LINK
+   SANGAT PENTING:
+
+   Sebelum direct link dibuka, simpan:
+   - source video
+   - judul
+   - posisi gate
+   - gate berikutnya
+   - playerType = gallery
+   - returnPending = true
+
+   Jadi ketika halaman dibuat ulang,
+   sistem tahu popup mana yang harus dibuka.
   */
-  saveResumeState(
+
+  const savedTime=
+   galleryGateIndex>0
+    ?GATE_TIMES[
+      galleryGateIndex-1
+     ]
+    :galleryVideo.currentTime;
+
+  savePopupResume(
    galleryCurrentSource,
-   galleryVideo.currentTime,
-   galleryGateIndex
+   galleryCurrentTitle,
+   savedTime,
+   galleryGateIndex,
+   true
   );
-
-  galleryOverlay.classList.remove("show");
-
-  galleryShell.classList.add("controls-hidden");
-
-  galleryCenterPlay.classList.add("hidden");
 
   /*
-   Buka Direct Link.
+   Overlay ditutup di halaman lama.
+   Link <a target="_blank"> di HTML
+   akan menangani pembukaan direct link.
   */
-  window.open(
-   AD_URL,
-   "_blank",
-   "noopener,noreferrer"
+  galleryOverlay.classList.remove(
+   "show"
   );
+
+  galleryShell.classList.add(
+   "controls-hidden"
+  );
+
+  galleryCenterPlay.classList.add(
+   "hidden"
+  );
+
+  /*
+   JANGAN window.open() lagi di sini.
+   Karena <a> sudah memiliki target="_blank".
+  */
 
  }
 );
@@ -2132,7 +2754,8 @@ FULLSCREEN POPUP
 ====================================================
 */
 
-$("galleryFullscreen").addEventListener(
+$("galleryFullscreen")
+.addEventListener(
  "click",
  ()=>{
 
@@ -2147,15 +2770,24 @@ document.addEventListener(
  "fullscreenchange",
  ()=>{
 
-  if(document.fullscreenElement===galleryShell){
+  if(
+   document.fullscreenElement===
+   galleryShell
+  ){
 
    if(
-    galleryOverlay.classList.contains("show")
+    galleryOverlay.classList.contains(
+     "show"
+    )
    ){
 
-    galleryShell.classList.add("controls-hidden");
+    galleryShell.classList.add(
+     "controls-hidden"
+    );
 
-    galleryCenterPlay.classList.add("hidden");
+    galleryCenterPlay.classList.add(
+     "hidden"
+    );
 
    }else{
 
@@ -2164,24 +2796,40 @@ document.addEventListener(
    }
 
   }else if(
-   galleryModal.classList.contains("show")
+   galleryModal.classList.contains(
+    "show"
+   )
   ){
 
    if(
-    galleryOverlay.classList.contains("show")
+    galleryOverlay.classList.contains(
+     "show"
+    )
    ){
 
-    galleryShell.classList.add("controls-hidden");
+    galleryShell.classList.add(
+     "controls-hidden"
+    );
 
-    galleryCenterPlay.classList.add("hidden");
+    galleryCenterPlay.classList.add(
+     "hidden"
+    );
 
-   }else if(galleryVideo.paused){
+   }else if(
+    galleryVideo.paused
+   ){
 
-    clearTimeout(galleryControlsTimer);
+    clearTimeout(
+     galleryControlsTimer
+    );
 
-    galleryShell.classList.remove("controls-hidden");
+    galleryShell.classList.remove(
+     "controls-hidden"
+    );
 
-    galleryCenterPlay.classList.remove("hidden");
+    galleryCenterPlay.classList.remove(
+     "hidden"
+    );
 
    }else{
 
@@ -2207,35 +2855,57 @@ function makeThumbCard(
  poster
 ){
 
- const card=document.createElement("button");
+ const card=
+  document.createElement(
+   "button"
+  );
 
  card.type="button";
 
- card.className="thumb-card";
+ card.className=
+  "thumb-card";
 
- const image=document.createElement("div");
+ const image=
+  document.createElement(
+   "div"
+  );
 
- image.className="thumb-image";
+ image.className=
+  "thumb-image";
 
- const fallback=document.createElement("div");
+ const fallback=
+  document.createElement(
+   "div"
+  );
 
- fallback.className="thumb-placeholder";
+ fallback.className=
+  "thumb-placeholder";
 
  fallback.textContent="▶";
 
- image.appendChild(fallback);
+ image.appendChild(
+  fallback
+ );
 
- if(poster&&poster.trim()){
+ if(
+  poster &&
+  poster.trim()
+ ){
 
-  const img=document.createElement("img");
+  const img=
+   document.createElement(
+    "img"
+   );
 
-  img.src=poster.trim();
+  img.src=
+   poster.trim();
 
   img.alt=
    "Thumbnail "+
-   (kind==="main"
-    ?"video "+(index+1)
-    :"trending "+(index+1)
+   (
+    kind==="main"
+     ?"video "+(index+1)
+     :"trending "+(index+1)
    );
 
   img.loading="eager";
@@ -2252,24 +2922,37 @@ function makeThumbCard(
    img.remove();
   };
 
-  image.insertBefore(img,fallback);
+  image.insertBefore(
+   img,
+   fallback
+  );
 
  }
 
- const tag=document.createElement("span");
+ const tag=
+  document.createElement(
+   "span"
+  );
 
- tag.className="duration-tag";
+ tag.className=
+  "duration-tag";
 
  tag.textContent=
   kind==="main"
    ?"VIDEO "+(index+1)
    :"TRENDING "+(index+1);
 
- image.appendChild(tag);
+ image.appendChild(
+  tag
+ );
 
- const title=document.createElement("div");
+ const title=
+  document.createElement(
+   "div"
+  );
 
- title.className="thumb-card-title";
+ title.className=
+  "thumb-card-title";
 
  title.textContent=
   kind==="main"
@@ -2280,9 +2963,13 @@ function makeThumbCard(
     )
    :"Trending Video "+(index+1);
 
- const meta=document.createElement("div");
+ const meta=
+  document.createElement(
+   "div"
+  );
 
- meta.className="thumb-card-meta";
+ meta.className=
+  "thumb-card-meta";
 
  meta.textContent=
   kind==="main"
@@ -2307,7 +2994,8 @@ function makeThumbCard(
         ?"Video Utama"
         :"Video "+index
       )
-     :"Trending Video "+(index+1)
+     :"Trending Video "+(index+1),
+    false
    );
 
   }
@@ -2323,62 +3011,95 @@ PLAYER UTAMA
 ====================================================
 */
 
-const shell=$("mainPlayer");
+const shell=
+ $("mainPlayer");
 
-const video=$("mainVideo");
+const video=
+ $("mainVideo");
 
-const overlay=$("continueOverlay");
+const overlay=
+ $("continueOverlay");
 
 const center=
- shell.querySelector(".center-play-btn");
+ shell.querySelector(
+  ".center-play-btn"
+ );
 
 const play=
- shell.querySelector('[data-action="play"]');
+ shell.querySelector(
+  '[data-action="play"]'
+ );
 
 const progress=
- shell.querySelector(".progress");
+ shell.querySelector(
+  ".progress"
+ );
 
 const fill=
- shell.querySelector(".progress-fill");
+ shell.querySelector(
+  ".progress-fill"
+ );
 
 const time=
- shell.querySelector(".time");
+ shell.querySelector(
+  ".time"
+ );
 
 let gateIndex=0;
+
 let controlsTimer=null;
+
 let centerTimer=null;
+
 let resumeRestored=false;
 
 function showMainControls(){
 
- clearTimeout(controlsTimer);
+ clearTimeout(
+  controlsTimer
+ );
 
- if(overlay.classList.contains("show")){
+ if(
+  overlay.classList.contains(
+   "show"
+  )
+ ){
 
-  shell.classList.add("controls-hidden");
+  shell.classList.add(
+   "controls-hidden"
+  );
 
-  center.classList.add("hidden");
+  center.classList.add(
+   "hidden"
+  );
 
   return;
 
  }
 
- shell.classList.remove("controls-hidden");
+ shell.classList.remove(
+  "controls-hidden"
+ );
 
  if(!video.paused){
 
-  controlsTimer=setTimeout(()=>{
+  controlsTimer=
+   setTimeout(()=>{
 
-   if(
-    !video.paused &&
-    !overlay.classList.contains("show")
-   ){
+    if(
+     !video.paused &&
+     !overlay.classList.contains(
+      "show"
+     )
+    ){
 
-    shell.classList.add("controls-hidden");
+     shell.classList.add(
+      "controls-hidden"
+     );
 
-   }
+    }
 
-  },2200);
+   },2200);
 
  }
 
@@ -2386,13 +3107,21 @@ function showMainControls(){
 
 function updateMainPlay(){
 
- if(overlay.classList.contains("show")){
+ if(
+  overlay.classList.contains(
+   "show"
+  )
+ ){
 
-  center.classList.add("hidden");
+  center.classList.add(
+   "hidden"
+  );
 
   play.textContent="▶";
 
-  shell.classList.add("controls-hidden");
+  shell.classList.add(
+   "controls-hidden"
+  );
 
   return;
 
@@ -2406,25 +3135,40 @@ function updateMainPlay(){
  center.textContent="▶";
 
  play.textContent=
-  video.paused?"▶":"Ⅱ";
+  video.paused
+   ?"▶"
+   :"Ⅱ";
 
 }
 
 function toggleMain(){
 
- if(overlay.classList.contains("show"))
+ if(
+  overlay.classList.contains(
+   "show"
+  )
+ )
   return;
 
- if(video.paused)
-  video.play().catch(updateMainPlay);
- else
+ if(video.paused){
+
+  video.play().catch(
+   updateMainPlay
+  );
+
+ }else{
+
   video.pause();
+
+ }
 
 }
 
-center.onclick=toggleMain;
+center.onclick=
+ toggleMain;
 
-play.onclick=toggleMain;
+play.onclick=
+ toggleMain;
 
 /*
 ====================================================
@@ -2446,36 +3190,89 @@ function restoreMainVideoPosition(){
   return;
 
  if(
-  !Number.isFinite(video.duration) ||
+  saved.playerType!=="main"
+ )
+  return;
+
+ if(
+  !Number.isFinite(
+   video.duration
+  ) ||
   video.duration<=0
+ )
+  return;
+
+ if(
+  !saved.returnPending
  )
   return;
 
  const safeTime=
   Math.min(
-   saved.time,
-   Math.max(0,video.duration-.2)
+   Math.max(
+    0,
+    Number(saved.time)||0
+   ),
+   Math.max(
+    0,
+    video.duration-.2
+   )
   );
 
- if(safeTime>0){
+ video.currentTime=
+  safeTime;
 
-  video.currentTime=safeTime;
-
-  gateIndex=
-   Math.min(
-    GATE_TIMES.length,
+ gateIndex=
+  Math.min(
+   GATE_TIMES.length,
+   Math.max(
+    0,
     Number(saved.gateIndex)||0
-   );
-
- }
+   )
+  );
 
  resumeRestored=true;
 
- clearResumeState(
-  MAIN_SOURCE
+ /*
+  Tandai bahwa state sudah dipakai.
+ */
+ saveMainResume(
+  safeTime,
+  gateIndex,
+  false
  );
 
+ updateMainPlay();
+
+ /*
+  Coba otomatis lanjut.
+ */
+ setTimeout(()=>{
+
+  if(
+   !video.paused &&
+   video.currentTime>safeTime+.5
+  )
+   return;
+
+  const p=
+   video.play();
+
+  if(
+   p &&
+   p.catch
+  )
+   p.catch(()=>{});
+
+ },150);
+
 }
+
+/*
+====================================================
+EVENT PLAYER UTAMA
+====================================================
+*/
 
 video.addEventListener(
  "play",
@@ -2511,7 +3308,8 @@ video.addEventListener(
  ()=>{
 
   time.textContent=
-   "0:00 / "+fmt(video.duration);
+   "0:00 / "+
+   fmt(video.duration);
 
   restoreMainVideoPosition();
 
@@ -2525,7 +3323,11 @@ video.addEventListener(
   if(video.duration){
 
    fill.style.width=
-    (video.currentTime/video.duration*100)+"%";
+    (
+     video.currentTime/
+     video.duration*
+     100
+    )+"%";
 
    time.textContent=
     fmt(video.currentTime)+
@@ -2535,8 +3337,10 @@ video.addEventListener(
   }
 
   if(
-   gateIndex<GATE_TIMES.length &&
-   video.currentTime>=GATE_TIMES[gateIndex]
+   gateIndex<
+   GATE_TIMES.length &&
+   video.currentTime>=
+   GATE_TIMES[gateIndex]
   ){
 
    const gatePosition=
@@ -2545,12 +3349,12 @@ video.addEventListener(
    gateIndex++;
 
    /*
-    SIMPAN POSISI SEBELUM DIRECT LINK
+    Simpan gate.
    */
-   saveResumeState(
-    MAIN_SOURCE,
+   saveMainResume(
     gatePosition,
-    gateIndex
+    gateIndex,
+    false
    );
 
    video.currentTime=
@@ -2558,13 +3362,21 @@ video.addEventListener(
 
    video.pause();
 
-   clearTimeout(controlsTimer);
+   clearTimeout(
+    controlsTimer
+   );
 
-   shell.classList.add("controls-hidden");
+   shell.classList.add(
+    "controls-hidden"
+   );
 
-   center.classList.add("hidden");
+   center.classList.add(
+    "hidden"
+   );
 
-   overlay.classList.add("show");
+   overlay.classList.add(
+    "show"
+   );
 
   }
 
@@ -2575,31 +3387,44 @@ video.addEventListener(
  "click",
  ()=>{
 
-  if(overlay.classList.contains("show"))
+  if(
+   overlay.classList.contains(
+    "show"
+   )
+  )
    return;
 
   showMainControls();
 
   if(!video.paused){
 
-   center.classList.remove("hidden");
+   center.classList.remove(
+    "hidden"
+   );
 
    center.textContent="Ⅱ";
 
-   clearTimeout(centerTimer);
+   clearTimeout(
+    centerTimer
+   );
 
-   centerTimer=setTimeout(()=>{
+   centerTimer=
+    setTimeout(()=>{
 
-    if(
-     !video.paused &&
-     !overlay.classList.contains("show")
-    ){
+     if(
+      !video.paused &&
+      !overlay.classList.contains(
+       "show"
+      )
+     ){
 
-     center.classList.add("hidden");
+      center.classList.add(
+       "hidden"
+      );
 
-    }
+     }
 
-   },1600);
+    },1600);
 
   }
 
@@ -2608,22 +3433,35 @@ video.addEventListener(
 
 progress.onclick=e=>{
 
- if(!overlay.classList.contains("show"))
+ if(
+  !overlay.classList.contains(
+   "show"
+  )
+ ){
+
   seek(
    video,
    progress,
    e.clientX
   );
 
+ }
+
 };
 
 progress.onkeydown=e=>{
 
- if(overlay.classList.contains("show"))
+ if(
+  overlay.classList.contains(
+   "show"
+  )
+ )
   return;
 
  if(
-  ["ArrowRight","ArrowLeft"].includes(e.key)
+  ["ArrowRight","ArrowLeft"].includes(
+   e.key
+  )
  ){
 
   e.preventDefault();
@@ -2634,7 +3472,11 @@ progress.onkeydown=e=>{
     Math.min(
      video.duration||0,
      video.currentTime+
-     (e.key==="ArrowRight"?5:-5)
+     (
+      e.key==="ArrowRight"
+       ?5
+       :-5
+     )
     )
    );
 
@@ -2648,38 +3490,49 @@ LANJUTKAN PLAYER UTAMA
 ====================================================
 */
 
-$("mainContinueButton").addEventListener(
+$("mainContinueButton")
+.addEventListener(
  "click",
  ()=>{
 
   /*
-   SIMPAN LAGI POSISI TERAKHIR.
-   Ini penting untuk Facebook Browser,
-   Telegram, X, dan browser lain.
+   Simpan posisi gate terakhir.
+   ReturnPending = TRUE.
+
+   Kalau Facebook membuat ulang
+   halaman, state ini yang akan membuat
+   video utama kembali ke posisi tadi.
   */
-  saveResumeState(
-   MAIN_SOURCE,
-   video.currentTime,
-   gateIndex
+
+  const savedTime=
+   gateIndex>0
+    ?GATE_TIMES[
+      gateIndex-1
+     ]
+    :video.currentTime;
+
+  saveMainResume(
+   savedTime,
+   gateIndex,
+   true
+  );
+
+  overlay.classList.remove(
+   "show"
+  );
+
+  shell.classList.add(
+   "controls-hidden"
+  );
+
+  center.classList.add(
+   "hidden"
   );
 
   /*
-   Hilangkan overlay.
+   Tidak ada window.open() di sini.
+   <a target="_blank> akan membuka link.
   */
-  overlay.classList.remove("show");
-
-  shell.classList.add("controls-hidden");
-
-  center.classList.add("hidden");
-
-  /*
-   Buka Direct Link.
-  */
-  window.open(
-   AD_URL,
-   "_blank",
-   "noopener,noreferrer"
-  );
 
  }
 );
@@ -2688,7 +3541,11 @@ shell.querySelector(
  '[data-action="fullscreen"]'
 ).onclick=()=>{
 
- if(overlay.classList.contains("show"))
+ if(
+  overlay.classList.contains(
+   "show"
+  )
+ )
   return;
 
  fullscreen(shell);
@@ -2701,14 +3558,23 @@ document.addEventListener(
 
   shell.classList.toggle(
    "is-fullscreen",
-   document.fullscreenElement===shell
+   document.fullscreenElement===
+   shell
   );
 
-  if(overlay.classList.contains("show")){
+  if(
+   overlay.classList.contains(
+    "show"
+   )
+  ){
 
-   shell.classList.add("controls-hidden");
+   shell.classList.add(
+    "controls-hidden"
+   );
 
-   center.classList.add("hidden");
+   center.classList.add(
+    "hidden"
+   );
 
   }else{
 
@@ -2725,14 +3591,16 @@ SEMUA VIDEO
 ====================================================
 */
 
-const mainGrid=$("mainThumbGrid");
+const mainGrid=
+ $("mainThumbGrid");
 
 const mainList=[
  MAIN_LIST_SOURCE,
  ...MAIN_SOURCES
 ];
 
-const side=$("sideSuggestions");
+const side=
+ $("sideSuggestions");
 
 mainList.forEach(
  (src,i)=>{
@@ -2749,23 +3617,34 @@ mainList.forEach(
   if(i<4){
 
    const item=
-    document.createElement("div");
+    document.createElement(
+     "div"
+    );
 
-   item.className="side-item";
+   item.className=
+    "side-item";
 
    const th=
-    document.createElement("div");
+    document.createElement(
+     "div"
+    );
 
-   th.className="side-thumb";
+   th.className=
+    "side-thumb";
 
    const fb=
-    document.createElement("div");
+    document.createElement(
+     "div"
+    );
 
-   fb.className="thumb-fallback";
+   fb.className=
+    "thumb-fallback";
 
    fb.textContent="▶";
 
-   th.appendChild(fb);
+   th.appendChild(
+    fb
+   );
 
    const sidePoster=
     POSTERS_MAIN[i];
@@ -2776,12 +3655,16 @@ mainList.forEach(
    ){
 
     const img=
-     document.createElement("img");
+     document.createElement(
+      "img"
+     );
 
-    img.src=sidePoster.trim();
+    img.src=
+     sidePoster.trim();
 
     img.alt=
-     "Thumbnail pilihan "+(i+1);
+     "Thumbnail pilihan "+
+     (i+1);
 
     img.loading="eager";
 
@@ -2797,14 +3680,20 @@ mainList.forEach(
      img.remove();
     };
 
-    th.insertBefore(img,fb);
+    th.insertBefore(
+     img,
+     fb
+    );
 
    }
 
    const label=
-    document.createElement("div");
+    document.createElement(
+     "div"
+    );
 
-   label.className="side-item-text";
+   label.className=
+    "side-item-text";
 
    label.textContent=
     i===0
@@ -2812,11 +3701,16 @@ mainList.forEach(
      :"Video "+i;
 
    const small=
-    document.createElement("small");
+    document.createElement(
+     "small"
+    );
 
-   small.textContent="Putar video";
+   small.textContent=
+    "Putar video";
 
-   label.appendChild(small);
+   label.appendChild(
+    small
+   );
 
    item.append(
     th,
@@ -2828,12 +3722,290 @@ mainList.forEach(
      src,
      i===0
       ?"Video Utama"
-      :"Video "+i
+      :"Video "+i,
+     false
     );
 
-   item.style.cursor="pointer";
+   item.style.cursor=
+    "pointer";
 
-   side.appendChild(item);
+   side.appendChild(
+    item
+   );
+
+  }
+
+ }
+);
+
+/*
+====================================================
+AUTO RESTORE POPUP
+====================================================
+
+Bagian ini yang paling penting.
+
+Ketika Facebook / browser membuat ulang
+halaman setelah user kembali dari direct
+link, sistem mencari video popup yang
+terakhir disimpan dengan returnPending=true.
+
+Kalau ketemu:
+1. Popup otomatis dibuka.
+2. Source video yang sama dipasang.
+3. loadedmetadata mengembalikan posisi.
+4. Gate berikutnya dikembalikan.
+====================================================
+*/
+
+function findPendingPopup(){
+
+ for(
+  let i=0;
+  i<mainList.length;
+  i++
+ ){
+
+  const src=
+   mainList[i];
+
+  const saved=
+   getResumeState(src);
+
+  if(
+   saved &&
+   saved.playerType==="gallery" &&
+   saved.returnPending
+  ){
+
+   return {
+    source:src,
+    title:
+     saved.title||
+     (
+      i===0
+       ?"Video Utama"
+       :"Video "+i
+     ),
+    state:saved
+   };
+
+  }
+
+ }
+
+ return null;
+
+}
+
+function restorePendingPopup(){
+
+ /*
+  Jangan membuka popup kalau popup
+  sudah sedang terbuka.
+ */
+ if(
+  galleryModal.classList.contains(
+   "show"
+  )
+ )
+  return;
+
+ const pending=
+  findPendingPopup();
+
+ if(!pending)
+  return;
+
+ /*
+  Buka popup video yang SAMA.
+ */
+ openGalleryPlayer(
+  pending.source,
+  pending.title,
+  true
+ );
+
+}
+
+/*
+====================================================
+PAGESHOW
+====================================================
+
+pageshow sangat penting untuk:
+- Facebook in-app browser
+- Telegram browser
+- X browser
+- browser biasa
+- BFCache
+====================================================
+*/
+
+window.addEventListener(
+ "pageshow",
+ ()=>{
+
+  setTimeout(()=>{
+
+   /*
+    Jika yang sedang ditonton adalah
+    popup, pulihkan popup.
+   */
+   restorePendingPopup();
+
+   /*
+    Untuk main player juga tetap
+    coba restore.
+   */
+   if(
+    !galleryModal.classList.contains(
+     "show"
+    )
+   ){
+
+    restoreMainVideoPosition();
+
+   }
+
+  },180);
+
+ }
+);
+
+/*
+====================================================
+VISIBILITY CHANGE
+====================================================
+
+Jika user berpindah ke direct link,
+state popup tetap aman.
+====================================================
+*/
+
+document.addEventListener(
+ "visibilitychange",
+ ()=>{
+
+  if(
+   document.visibilityState!=="hidden"
+  )
+   return;
+
+  /*
+   Kalau popup sedang menampilkan gate,
+   simpan state dengan returnPending
+   tetap FALSE.
+
+   Ketika tombol direct link ditekan,
+   event click akan mengubahnya TRUE.
+  */
+  if(
+   galleryCurrentSource &&
+   galleryOverlay.classList.contains(
+    "show"
+   )
+  ){
+
+   const gateTime=
+    galleryGateIndex>0
+     ?GATE_TIMES[
+       galleryGateIndex-1
+      ]
+     :galleryVideo.currentTime;
+
+   savePopupResume(
+    galleryCurrentSource,
+    galleryCurrentTitle,
+    gateTime,
+    galleryGateIndex,
+    false
+   );
+
+  }
+
+  if(
+   overlay.classList.contains(
+    "show"
+   )
+  ){
+
+   const gateTime=
+    gateIndex>0
+     ?GATE_TIMES[
+       gateIndex-1
+      ]
+     :video.currentTime;
+
+   saveMainResume(
+    gateTime,
+    gateIndex,
+    false
+   );
+
+  }
+
+ }
+);
+
+/*
+====================================================
+PAGEHIDE
+====================================================
+*/
+
+window.addEventListener(
+ "pagehide",
+ ()=>{
+
+  /*
+   Jangan menghapus state.
+   State dibutuhkan ketika user kembali
+   dari direct link.
+  */
+
+  if(
+   galleryCurrentSource &&
+   galleryOverlay.classList.contains(
+    "show"
+   )
+  ){
+
+   const gateTime=
+    galleryGateIndex>0
+     ?GATE_TIMES[
+       galleryGateIndex-1
+      ]
+     :galleryVideo.currentTime;
+
+   savePopupResume(
+    galleryCurrentSource,
+    galleryCurrentTitle,
+    gateTime,
+    galleryGateIndex,
+    true
+   );
+
+  }
+
+  if(
+   overlay.classList.contains(
+    "show"
+   )
+  ){
+
+   const gateTime=
+    gateIndex>0
+     ?GATE_TIMES[
+       gateIndex-1
+      ]
+     :video.currentTime;
+
+   saveMainResume(
+    gateTime,
+    gateIndex,
+    true
+   );
 
   }
 
@@ -2846,38 +4018,65 @@ SHARE
 ====================================================
 */
 
-$("shareButton").onclick=async()=>{
+$("shareButton").onclick=
+ async()=>{
 
- try{
+  try{
 
-  if(navigator.share){
+   if(navigator.share){
 
-   await navigator.share({
-    title:document.title,
-    text:"Tonton video ini",
-    url:location.href
-   });
+    await navigator.share({
+     title:document.title,
+     text:"Tonton video ini",
+     url:location.href
+    });
 
-  }else if(navigator.clipboard){
+   }else if(
+    navigator.clipboard
+   ){
 
-   await navigator.clipboard.writeText(
-    location.href
-   );
+    await navigator.clipboard.writeText(
+     location.href
+    );
 
-   alert("Link berhasil disalin");
+    alert(
+     "Link berhasil disalin"
+    );
 
-  }else{
+   }else{
 
-   prompt(
-    "Salin link:",
-    location.href
-   );
+    prompt(
+     "Salin link:",
+     location.href
+    );
 
-  }
+   }
 
- }catch(e){}
+  }catch(e){}
 
-};
+ };
+
+/*
+====================================================
+JALANKAN RESTORE SETELAH SEMUA
+SELESAI DIBUAT
+====================================================
+
+Kita beri jeda sedikit agar:
+- thumbnail sudah dibuat
+- mainList sudah tersedia
+- popup siap dibuka
+====================================================
+*/
+
+setTimeout(
+ ()=>{
+
+  restorePendingPopup();
+
+ },
+350
+);
 
 })();
 </script>
@@ -2935,7 +4134,10 @@ try{
    "websiteLanguage"
   );
 
- if(s==="id"||s==="en")
+ if(
+  s==="id"||
+  s==="en"
+ )
   lang=s;
 
 }catch(e){}
@@ -2989,7 +4191,8 @@ function applyLanguage(next){
    el.dataset.i18n;
 
   if(t[key])
-   el.textContent=t[key];
+   el.textContent=
+    t[key];
 
  });
 
