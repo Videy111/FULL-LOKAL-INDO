@@ -1707,6 +1707,10 @@ function seek(v,p,x){
 
 }
 
+/* ====================================================
+   FULLSCREEN
+==================================================== */
+
 async function fullscreen(el){
 
  try{
@@ -1734,6 +1738,8 @@ async function fullscreen(el){
   );
 
  }
+
+}
 
 /* ====================================================
    POPUP PLAYER
@@ -3391,7 +3397,7 @@ $("mainContinueButton")
 .addEventListener(
  "click",
  ()=>{
-
+ 
   const savedTime=
    gateIndex>0
     ?GATE_TIMES[
