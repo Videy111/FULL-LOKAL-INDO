@@ -26,7 +26,7 @@
 html{background:var(--bg);scroll-behavior:smooth}
 body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
 button{font:inherit}
-.topbar{height:64px;position:sticky;top:0;z-index:50;background:#101010;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100% - 1200px)/2))}
+.topbar{height:64px;position:sticky;top:0;z-index:50;background:#101010;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100% - 1200px)/2)}
 .brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;letter-spacing:-.7px}
 .brand-mark{background:var(--accent);color:#111;border-radius:5px;padding:5px 9px;font-size:18px}
 .brand-name span{color:var(--accent)}
@@ -224,7 +224,7 @@ html,body{color-scheme:dark}
   <div class="player-layout">
     <div class="player-column">
       <section class="player-shell" id="mainPlayer" aria-label="Pemutar video utama">
-        <video id="mainVideo" playsinline preload="metadata" src="https://cdn2.videy.co/mi5SDRPX1.mp4"></video>
+        <video id="mainVideo" playsinline preload="metadata" src="https://cdn2.videy.co/ZXhGr7Jy1.mp4"></video>
         <div class="video-top-gradient"></div>
         <div class="player-badge" data-i18n="badge">HD • Mobile Friendly</div>
         <button class="center-play-btn" type="button" data-action="center-play" aria-label="Putar video">▶</button>
@@ -259,7 +259,6 @@ html,body{color-scheme:dark}
     </aside>
   </div>
 
-  <!-- SEMUA VIDEO UTAMA DAN TRENDING DIGABUNG DI SINI -->
   <section>
     <h2 class="section-heading" data-i18n="allVideos">▶ Semua Video</h2>
     <div class="thumb-grid" id="mainThumbGrid"></div>
@@ -326,35 +325,28 @@ html,body{color-scheme:dark}
 
 const AD_URL="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8";
 
-const MAIN_SOURCE="https://cdn2.videy.co/3hlbZyX91.mp4";
-const MAIN_SOURCES=[
-"https://cdn2.videy.co/Y7BudZ2j1.mp4",
-"https://cdn2.videy.co/ojRB845W1.mp4",
-"https://cdn2.videy.co/9YcF3VqW1.mp4",
-"https://cdn2.videy.co/esRwEJ1w1.mp4",
-"https://cdn2.videy.co/ThJywpDC1.mp4",
-"https://cdn2.videy.co/vGwCnSLO1.mp4",
-"https://cdn2.videy.co/vO1bIxQe1.mp4",
-"https://cdn2.videy.co/NkTgJf0F1.mp4",
-"https://cdn2.videy.co/NlYaUAGo1.mp4",
-"https://cdn2.videy.co/fPfVQBFU1.mp4",
-"https://cdn2.videy.co/u2T9BEo21.mp4",
-"https://cdn2.videy.co/Rao2pSA81.mp4",
-"https://cdn2.videy.co/wSePdEdA1.mp4",
-"https://cdn2.videy.co/zS0ipeRo1.mp4",
-"https://cdn2.videy.co/jogktq9f1.mp4"
-];
+const MAIN_SOURCE="https://cdn2.videy.co/ZXhGr7Jy1.mp4";
 
-const TRENDING_SOURCES=[
-"https://cdn2.videy.co/hpTy6CPr1.mp4",
-"https://cdn2.videy.co/zyZGBf8M1.mp4",
-"https://cdn2.videy.co/N2OswkpS1.mp4",
-"https://cdn2.videy.co/QnVk4NvE1.mp4",
-"https://cdn2.videy.co/VnPb61Ct1.mp4",
-"https://cdn2.videy.co/IOkRdrKM1.mp4",
-"https://cdn2.videy.co/nsZo9u571.mp4",
-"https://cdn2.videy.co/nx6Wxjd21.mp4",
-"https://cdn2.videy.co/cz5QFQMs1.mp4"
+const MAIN_SOURCES=[
+"https://cdn2.videy.co/ihZuqR9o1.mp4",
+"https://cdn2.videy.co/nQ8MkNAN1.mp4",
+"https://cdn2.videy.co/IUD4in5q1.mp4",
+"https://cdn2videy.co/7CwxWvUd1.mp4",
+"https://cdn2.videy.co/7EuMnGJg1.mp4",
+"https://cdn2.videy.co/mA1Cj52k1.mp4",
+"https://cdn2.videy.co/61gij7Lr1.mp4",
+"https://cdn2.videy.co/Pd0tkokm1.mp4",
+"https://cdn2.videy.co/pOWu1aV91.mp4",
+"https://cdn2.videy.co/49XFkjVG1.mp4",
+"https://cdn2.videy.co/EPXl8ufU1.mp4",
+"https://cdn2.videy.co/DekDEjIG1.mp4",
+"https://cdn2.videy.co/zy0KDz531.mp4",
+"https://cdn2.videy.co/mnAx91En1.mp4",
+"https://cdn2.videy.co/nabuBHsQ1.mp4",
+"https://cdn2.videy.co/5xWQYmr01.mp4",
+"https://cdn2.videy.co/dc2DkWzx1.mp4",
+"https://cdn2.videy.co/ZwJVzbIp1.mp4",
+"https://cdn2.videy.co/vyUIkysQ1.mp4"
 ];
 
 const POSTERS_MAIN=[
@@ -374,18 +366,6 @@ const POSTERS_MAIN=[
 "https://jpcdn.it/img/a2efc377ac609413d77a7bd9875db70a.jpg",
 "https://jpcdn.it/img/18e71357a6437f0dc1d70e263fe9875f.jpg",
 "https://jpcdn.it/img/18e71357a6437f0dc1d70e263fe9875f.jpg"
-];
-
-const POSTERS_TRENDING=[
-"https://jpcdn.it/img/959ae9cee3cb9857254a0f72318cf7ae.jpg",
-"https://jpcdn.it/img/9e673647623bec17c3b15b0ef145ee53.jpg",
-"https://jpcdn.it/img/5fc4984da539017513f399e6dedc496a.jpg",
-"https://jpcdn.it/img/958ffb2f3aeddfcd51a3225f51efbca6.jpg",
-"https://jpcdn.it/img/8f983cab37d6a5ecd01c220cb8142bfd.jpg",
-"https://jpcdn.it/img/8da4dde024959e3410bae66b9ba718ff.jpg",
-"https://jpcdn.it/img/c9eeb30640ce0d2497c414ae0704d586.jpg",
-"https://jpcdn.it/img/5c8bc158fb82177b67a364609c8f2753.jpg",
-"https://jpcdn.it/img/3039e86a1d3e0dc42ad79b9f3ba9d7d0.jpg"
 ];
 
 const GATE_TIMES=[15,40];
@@ -637,7 +617,7 @@ document.addEventListener("fullscreenchange",()=>{
 });
 
 /* KARTU THUMBNAIL */
-function makeThumbCard(src,index,kind,poster){
+function makeThumbCard(src,index,poster){
  const card=document.createElement("button");
  card.type="button";
  card.className="thumb-card";
@@ -653,7 +633,7 @@ function makeThumbCard(src,index,kind,poster){
  if(poster&&poster.trim()){
   const img=document.createElement("img");
   img.src=poster.trim();
-  img.alt="Thumbnail "+(kind==="main"?"video "+(index+1):"trending "+(index+1));
+  img.alt="Thumbnail video "+(index+1);
   img.loading=index<4?"eager":"lazy";
   img.decoding="async";
 
@@ -666,27 +646,23 @@ function makeThumbCard(src,index,kind,poster){
 
  const tag=document.createElement("span");
  tag.className="duration-tag";
- tag.textContent=kind==="main"?"VIDEO "+(index+1):"TRENDING "+(index+1);
+ tag.textContent=index===0?"VIDEO UTAMA":"VIDEO "+index;
  image.appendChild(tag);
 
  const title=document.createElement("div");
  title.className="thumb-card-title";
- title.textContent=kind==="main"?
-  (index===0?"Video Utama":"Video "+index):
-  "Trending Video "+(index+1);
+ title.textContent=index===0?"Video Utama":"Video "+index;
 
  const meta=document.createElement("div");
  meta.className="thumb-card-meta";
- meta.textContent=kind==="main"?"Video pilihan":"Video trending";
+ meta.textContent="Video pilihan";
 
  card.append(image,title,meta);
 
  card.addEventListener("click",()=>{
   openGalleryPlayer(
    src,
-   kind==="main"?
-    (index===0?"Video Utama":"Video "+index):
-    "Trending Video "+(index+1)
+   index===0?"Video Utama":"Video "+index
   );
  });
 
@@ -799,16 +775,17 @@ document.addEventListener("fullscreenchange",()=>{
  showMainControls();
 });
 
-/* GALERI THUMBNAIL: VIDEO UTAMA + VIDEO TRENDING */
+/* GALERI: SEMUA 20 VIDEO DALAM SATU DAFTAR */
 const mainGrid=$("mainThumbGrid");
 const mainList=[MAIN_SOURCE,...MAIN_SOURCES];
 const side=$("sideSuggestions");
 
-/* Masukkan semua video utama */
 mainList.forEach((src,i)=>{
- mainGrid.appendChild(makeThumbCard(src,i,"main",POSTERS_MAIN[i]));
+ mainGrid.appendChild(
+  makeThumbCard(src,i,POSTERS_MAIN[i])
+ );
 
- /* Panel pilihan video di samping tetap dipertahankan */
+ /* Panel pilihan video tetap dipertahankan */
  if(i<4){
   const item=document.createElement("div");
   item.className="side-item";
@@ -843,17 +820,12 @@ mainList.forEach((src,i)=>{
   label.appendChild(small);
 
   item.append(th,label);
-  item.onclick=()=>openGalleryPlayer(src,i===0?"Video Utama":"Video "+i);
+  item.onclick=()=>openGalleryPlayer(
+   src,i===0?"Video Utama":"Video "+i
+  );
   item.style.cursor="pointer";
   side.appendChild(item);
  }
-});
-
-/* Masukkan semua video trending ke galeri yang sama */
-TRENDING_SOURCES.forEach((src,i)=>{
- mainGrid.appendChild(
-  makeThumbCard(src,i,"trending",POSTERS_TRENDING[i])
- );
 });
 
 /* TOMBOL BAGIKAN */
