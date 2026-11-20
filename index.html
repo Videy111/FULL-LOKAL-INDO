@@ -526,8 +526,6 @@ main{
  margin-top:4px
 }
 
-/* POPUP GALERI */
-
 .gallery-modal{
  position:fixed;
  inset:0;
@@ -942,8 +940,6 @@ footer{
  }
 }
 
-/* FIX WARNA TOMBOL VIDEO DI FACEBOOK BROWSER */
-
 .ctrl,
 .gallery-video-control{
  -webkit-appearance:none!important;
@@ -1009,8 +1005,6 @@ body{
  height:100%!important;
  min-height:7px!important
 }
-
-/* TELEGRAM */
 
 .telegram-banner{
  display:flex;
@@ -1220,8 +1214,6 @@ Lihat Koleksi Video Lengkap ↗
 </div>
 </section>
 
-<!-- POPUP -->
-
 <div
  class="gallery-modal"
  id="galleryModal"
@@ -1357,6 +1349,10 @@ Join Channel Telegram
 (() => {
 "use strict";
 
+/* ====================================================
+   URL IKLAN
+==================================================== */
+
 const AD_URL =
 "https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8";
 
@@ -1415,24 +1411,18 @@ const POSTERS_MAIN=[
 
 ];
 
-/*
-====================================================
-PRELOAD SEMUA POSTER
-====================================================
-Semua gambar poster langsung diminta browser
-ketika halaman mulai dibuka.
-*/
+/* ====================================================
+   PRELOAD POSTER
+==================================================== */
 
 POSTERS_MAIN.forEach(url=>{
  const img=new Image();
  img.src=url;
 });
 
-/*
-====================================================
-FORMAT WAKTU
-====================================================
-*/
+/* ====================================================
+   GATE
+==================================================== */
 
 const GATE_TIMES=[15,40];
 
@@ -1442,6 +1432,83 @@ const fmt=s=>
  !Number.isFinite(s)||s<0
  ?"0:00"
  :Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+
+/* ====================================================
+   RESUME SYSTEM
+   POSISI DISIMPAN PER VIDEO
+==================================================== */
+
+const RESUME_PREFIX="video_resume_v2_";
+
+function resumeKey(src){
+ return RESUME_PREFIX + btoa(unescape(encodeURIComponent(src)))
+  .replace(/[^a-zA-Z0-9]/g,"")
+  .slice(0,100);
+}
+
+function saveResumeState(src,time,gateIndex){
+
+ try{
+
+  localStorage.setItem(
+   resumeKey(src),
+   JSON.stringify({
+    time:Math.max(0,Number(time)||0),
+    gateIndex:Number(gateIndex)||0,
+    source:src,
+    savedAt:Date.now()
+   })
+  );
+
+ }catch(e){}
+
+}
+
+function getResumeState(src){
+
+ try{
+
+  const raw=
+   localStorage.getItem(
+    resumeKey(src)
+   );
+
+  if(!raw)
+   return null;
+
+  const data=JSON.parse(raw);
+
+  if(
+   !data ||
+   data.source!==src ||
+   !Number.isFinite(data.time)
+  ){
+
+   return null;
+
+  }
+
+  return data;
+
+ }catch(e){
+
+  return null;
+
+ }
+
+}
+
+function clearResumeState(src){
+
+ try{
+
+  localStorage.removeItem(
+   resumeKey(src)
+  );
+
+ }catch(e){}
+
+}
 
 /*
 ====================================================
@@ -1516,6 +1583,7 @@ const galleryCenterPlay=$("galleryCenterPlay");
 
 let galleryGateIndex=0;
 let galleryControlsTimer=null;
+let galleryCurrentSource="";
 
 function showGalleryControls(){
 
@@ -1527,6 +1595,7 @@ function showGalleryControls(){
   galleryCenterPlay.classList.add("hidden");
 
   return;
+
  }
 
  galleryShell.classList.remove("controls-hidden");
@@ -1616,6 +1685,7 @@ function updateGalleryTime(){
 function openGalleryPlayer(src,title){
 
  galleryGateIndex=0;
+ galleryCurrentSource=src;
 
  clearTimeout(galleryControlsTimer);
 
@@ -1657,6 +1727,49 @@ function openGalleryPlayer(src,title){
 
 }
 
+function restoreGalleryPosition(){
+
+ if(!galleryCurrentSource)
+  return;
+
+ const saved=
+  getResumeState(
+   galleryCurrentSource
+  );
+
+ if(!saved)
+  return;
+
+ if(
+  !Number.isFinite(galleryVideo.duration) ||
+  galleryVideo.duration<=0
+ )
+  return;
+
+ const safeTime=
+  Math.min(
+   saved.time,
+   Math.max(0,galleryVideo.duration-.2)
+  );
+
+ if(safeTime>0){
+
+  galleryVideo.currentTime=safeTime;
+
+  galleryGateIndex=
+   Math.min(
+    GATE_TIMES.length,
+    Number(saved.gateIndex)||0
+   );
+
+ }
+
+ clearResumeState(
+  galleryCurrentSource
+ );
+
+}
+
 function closeGalleryPlayer(){
 
  clearTimeout(galleryControlsTimer);
@@ -1687,6 +1800,7 @@ function closeGalleryPlayer(){
  document.body.classList.remove("modal-open");
 
  galleryGateIndex=0;
+ galleryCurrentSource="";
 
  galleryCenterPlay.classList.remove("hidden");
 
@@ -1765,12 +1879,26 @@ galleryVideo.addEventListener(
 
 galleryVideo.addEventListener(
  "ended",
- updateGalleryPlay
+ ()=>{
+
+  if(galleryCurrentSource)
+   clearResumeState(
+    galleryCurrentSource
+   );
+
+  updateGalleryPlay();
+
+ }
 );
 
 galleryVideo.addEventListener(
  "loadedmetadata",
- updateGalleryTime
+ ()=>{
+
+  updateGalleryTime();
+  restoreGalleryPosition();
+
+ }
 );
 
 galleryVideo.addEventListener(
@@ -1828,7 +1956,19 @@ galleryVideo.addEventListener(
    galleryVideo.currentTime>=GATE_TIMES[galleryGateIndex]
   ){
 
+   const gatePosition=
+    GATE_TIMES[galleryGateIndex];
+
    galleryGateIndex++;
+
+   saveResumeState(
+    galleryCurrentSource,
+    gatePosition,
+    galleryGateIndex
+   );
+
+   galleryVideo.currentTime=
+    gatePosition;
 
    galleryVideo.pause();
 
@@ -1959,26 +2099,29 @@ $("galleryContinueButton").addEventListener(
  "click",
  ()=>{
 
+  /*
+   SIMPAN POSISI SEBELUM MENUJU DIRECT LINK
+  */
+  saveResumeState(
+   galleryCurrentSource,
+   galleryVideo.currentTime,
+   galleryGateIndex
+  );
+
   galleryOverlay.classList.remove("show");
 
   galleryShell.classList.add("controls-hidden");
 
   galleryCenterPlay.classList.add("hidden");
 
-  galleryVideo.play().catch(()=>{});
-
-  setTimeout(()=>{
-
-   if(
-    !galleryVideo.paused &&
-    !galleryVideo.ended
-   ){
-
-    showGalleryControls();
-
-   }
-
-  },700);
+  /*
+   Buka Direct Link.
+  */
+  window.open(
+   AD_URL,
+   "_blank",
+   "noopener,noreferrer"
+  );
 
  }
 );
@@ -2095,15 +2238,6 @@ function makeThumbCard(
     :"trending "+(index+1)
    );
 
-  /*
-  ==================================================
-  PERUBAHAN UTAMA
-  ==================================================
-  SEMUA GAMBAR MENGGUNAKAN EAGER
-  AGAR LANGSUNG DIMUAT SAAT FRESH
-  ==================================================
-  */
-
   img.loading="eager";
 
   img.decoding="async";
@@ -2211,10 +2345,9 @@ const time=
  shell.querySelector(".time");
 
 let gateIndex=0;
-
 let controlsTimer=null;
-
 let centerTimer=null;
+let resumeRestored=false;
 
 function showMainControls(){
 
@@ -2293,6 +2426,57 @@ center.onclick=toggleMain;
 
 play.onclick=toggleMain;
 
+/*
+====================================================
+RESTORE PLAYER UTAMA
+====================================================
+*/
+
+function restoreMainVideoPosition(){
+
+ if(resumeRestored)
+  return;
+
+ const saved=
+  getResumeState(
+   MAIN_SOURCE
+  );
+
+ if(!saved)
+  return;
+
+ if(
+  !Number.isFinite(video.duration) ||
+  video.duration<=0
+ )
+  return;
+
+ const safeTime=
+  Math.min(
+   saved.time,
+   Math.max(0,video.duration-.2)
+  );
+
+ if(safeTime>0){
+
+  video.currentTime=safeTime;
+
+  gateIndex=
+   Math.min(
+    GATE_TIMES.length,
+    Number(saved.gateIndex)||0
+   );
+
+ }
+
+ resumeRestored=true;
+
+ clearResumeState(
+  MAIN_SOURCE
+ );
+
+}
+
 video.addEventListener(
  "play",
  ()=>{
@@ -2310,11 +2494,26 @@ video.addEventListener(
 );
 
 video.addEventListener(
+ "ended",
+ ()=>{
+
+  clearResumeState(
+   MAIN_SOURCE
+  );
+
+  updateMainPlay();
+
+ }
+);
+
+video.addEventListener(
  "loadedmetadata",
  ()=>{
 
   time.textContent=
    "0:00 / "+fmt(video.duration);
+
+  restoreMainVideoPosition();
 
  }
 );
@@ -2340,7 +2539,22 @@ video.addEventListener(
    video.currentTime>=GATE_TIMES[gateIndex]
   ){
 
+   const gatePosition=
+    GATE_TIMES[gateIndex];
+
    gateIndex++;
+
+   /*
+    SIMPAN POSISI SEBELUM DIRECT LINK
+   */
+   saveResumeState(
+    MAIN_SOURCE,
+    gatePosition,
+    gateIndex
+   );
+
+   video.currentTime=
+    gatePosition;
 
    video.pause();
 
@@ -2428,30 +2642,47 @@ progress.onkeydown=e=>{
 
 };
 
-$("mainContinueButton").onclick=()=>{
+/*
+====================================================
+LANJUTKAN PLAYER UTAMA
+====================================================
+*/
 
- overlay.classList.remove("show");
+$("mainContinueButton").addEventListener(
+ "click",
+ ()=>{
 
- shell.classList.add("controls-hidden");
+  /*
+   SIMPAN LAGI POSISI TERAKHIR.
+   Ini penting untuk Facebook Browser,
+   Telegram, X, dan browser lain.
+  */
+  saveResumeState(
+   MAIN_SOURCE,
+   video.currentTime,
+   gateIndex
+  );
 
- center.classList.add("hidden");
+  /*
+   Hilangkan overlay.
+  */
+  overlay.classList.remove("show");
 
- video.play().catch(updateMainPlay);
+  shell.classList.add("controls-hidden");
 
- setTimeout(()=>{
+  center.classList.add("hidden");
 
-  if(
-   !video.paused &&
-   !video.ended
-  ){
+  /*
+   Buka Direct Link.
+  */
+  window.open(
+   AD_URL,
+   "_blank",
+   "noopener,noreferrer"
+  );
 
-   showMainControls();
-
-  }
-
- },700);
-
-};
+ }
+);
 
 shell.querySelector(
  '[data-action="fullscreen"]'
@@ -2551,10 +2782,6 @@ mainList.forEach(
 
     img.alt=
      "Thumbnail pilihan "+(i+1);
-
-    /*
-    SEMUA GAMBAR SIDEBAR JUGA EAGER
-    */
 
     img.loading="eager";
 
@@ -2877,9 +3104,6 @@ _Hasync.push([
 </noscript>
 
 <!-- HISTATS END -->
-
-<!-- SOCIAL BAR -->
-
 
 </body>
 </html>
