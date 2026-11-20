@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -25,7 +26,7 @@
 html{background:var(--bg);scroll-behavior:smooth}
 body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
 button{font:inherit}
-.topbar{height:64px;position:sticky;top:0;z-index:50;background:#101010;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100% - 1200px)/2)}
+.topbar{height:64px;position:sticky;top:0;z-index:50;background:#101010;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100% - 1200px)/2))}
 .brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;letter-spacing:-.7px}
 .brand-mark{background:var(--accent);color:#111;border-radius:5px;padding:5px 9px;font-size:18px}
 .brand-name span{color:var(--accent)}
@@ -258,6 +259,7 @@ html,body{color-scheme:dark}
     </aside>
   </div>
 
+  <!-- SEMUA 20 VIDEO DALAM SATU GALERI -->
   <section>
     <h2 class="section-heading" data-i18n="allVideos">▶ Semua Video</h2>
     <div class="thumb-grid" id="mainThumbGrid"></div>
@@ -324,6 +326,7 @@ html,body{color-scheme:dark}
 
 const AD_URL="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8";
 
+/* 20 LINK VIDEO BARU SESUAI URUTAN */
 const MAIN_SOURCE="https://cdn2.videy.co/ZXhGr7Jy1.mp4";
 
 const MAIN_SOURCES=[
@@ -348,6 +351,7 @@ const MAIN_SOURCES=[
 "https://cdn2.videy.co/vyUIkysQ1.mp4"
 ];
 
+/* GAMBAR POSTER ASLI TETAP DIPERTAHANKAN */
 const POSTERS_MAIN=[
 "https://jpcdn.it/img/bc17e9c3770b3b2ef0a1cd3a39440d1b.jpg",
 "https://jpcdn.it/img/1c92edeed268a3488d5304ab40d47649.jpg",
@@ -616,7 +620,7 @@ document.addEventListener("fullscreenchange",()=>{
 });
 
 /* KARTU THUMBNAIL */
-function makeThumbCard(src,index,poster){
+function makeThumbCard(src,index,kind,poster){
  const card=document.createElement("button");
  card.type="button";
  card.className="thumb-card";
@@ -632,7 +636,7 @@ function makeThumbCard(src,index,poster){
  if(poster&&poster.trim()){
   const img=document.createElement("img");
   img.src=poster.trim();
-  img.alt="Thumbnail video "+(index+1);
+  img.alt="Thumbnail "+(kind==="main"?"video "+(index+1):"trending "+(index+1));
   img.loading=index<4?"eager":"lazy";
   img.decoding="async";
 
@@ -645,23 +649,27 @@ function makeThumbCard(src,index,poster){
 
  const tag=document.createElement("span");
  tag.className="duration-tag";
- tag.textContent=index===0?"VIDEO UTAMA":"VIDEO "+index;
+ tag.textContent=kind==="main"?"VIDEO "+(index+1):"TRENDING "+(index+1);
  image.appendChild(tag);
 
  const title=document.createElement("div");
  title.className="thumb-card-title";
- title.textContent=index===0?"Video Utama":"Video "+index;
+ title.textContent=kind==="main"?
+  (index===0?"Video Utama":"Video "+index):
+  "Trending Video "+(index+1);
 
  const meta=document.createElement("div");
  meta.className="thumb-card-meta";
- meta.textContent="Video pilihan";
+ meta.textContent=kind==="main"?"Video pilihan":"Video trending";
 
  card.append(image,title,meta);
 
  card.addEventListener("click",()=>{
   openGalleryPlayer(
    src,
-   index===0?"Video Utama":"Video "+index
+   kind==="main"?
+    (index===0?"Video Utama":"Video "+index):
+    "Trending Video "+(index+1)
   );
  });
 
@@ -774,17 +782,16 @@ document.addEventListener("fullscreenchange",()=>{
  showMainControls();
 });
 
-/* GALERI: SEMUA 20 VIDEO DALAM SATU DAFTAR */
+/* GALERI: SEMUA VIDEO UTAMA DIGABUNG MENJADI SATU DAFTAR */
 const mainGrid=$("mainThumbGrid");
 const mainList=[MAIN_SOURCE,...MAIN_SOURCES];
 const side=$("sideSuggestions");
 
+/* Masukkan semua 20 video ke galeri yang sama */
 mainList.forEach((src,i)=>{
- mainGrid.appendChild(
-  makeThumbCard(src,i,POSTERS_MAIN[i])
- );
+ mainGrid.appendChild(makeThumbCard(src,i,"main",POSTERS_MAIN[i]));
 
- /* Panel pilihan video tetap dipertahankan */
+ /* Panel pilihan video di samping tetap dipertahankan */
  if(i<4){
   const item=document.createElement("div");
   item.className="side-item";
@@ -819,9 +826,7 @@ mainList.forEach((src,i)=>{
   label.appendChild(small);
 
   item.append(th,label);
-  item.onclick=()=>openGalleryPlayer(
-   src,i===0?"Video Utama":"Video "+i
-  );
+  item.onclick=()=>openGalleryPlayer(src,i===0?"Video Utama":"Video "+i);
   item.style.cursor="pointer";
   side.appendChild(item);
  }
