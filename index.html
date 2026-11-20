@@ -87,47 +87,279 @@ main{max-width:1200px;margin:auto;padding:20px 16px 45px}
 .thumb-card-title{font-size:12px;font-weight:700;line-height:1.4;margin-top:7px}
 .thumb-card-meta{font-size:10px;color:#999;margin-top:4px}
 
-/* POPUP GALERI */
-.gallery-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.88);backdrop-filter:blur(7px)}
+/* POPUP GALERI
+   Ukuran popup tetap seperti sebelumnya.
+   Hanya HEADER/JUDUL abu-abu yang dihilangkan.
+*/
+.gallery-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  background:rgba(0,0,0,.88);
+  backdrop-filter:blur(7px)
+}
 .gallery-modal.show{display:flex}
 body.modal-open{overflow:hidden}
-.gallery-modal-box{position:relative;width:min(1100px,100%);max-height:96vh;overflow:auto;background:#151515;border:1px solid #444;border-radius:12px;box-shadow:0 20px 70px #000b}
-.gallery-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid #333}
-.gallery-modal-title{font-size:15px;font-weight:800;color:#fff}
-.gallery-modal-close{width:36px;height:36px;border:1px solid #555;border-radius:7px;background:#292929;color:#fff;font-size:23px;cursor:pointer;flex:none}
-.gallery-video-shell{position:relative;background:#000;overflow:hidden}
-.gallery-video-shell video{display:block;width:100%;max-height:78vh;aspect-ratio:16/9;object-fit:contain;background:#000}
-.gallery-center-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;width:68px;height:68px;border:2px solid #fff;border-radius:50%;color:#111;background:#ff9d00eF;font-size:29px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s}
-.gallery-center-play.hidden{opacity:0;pointer-events:none}
-.gallery-video-controls{position:absolute;left:0;right:0;bottom:0;z-index:22;display:flex;align-items:center;gap:9px;padding:14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.88));opacity:1;transition:opacity .25s}
-.gallery-video-shell.controls-hidden .gallery-video-controls{opacity:0;pointer-events:none}
-.gallery-video-control{height:36px;min-width:38px;border:1px solid #ffffff45;border-radius:6px;background:#171717d9;color:#fff;cursor:pointer;flex:none}
-.gallery-video-progress{height:6px;flex:1;min-width:30px;background:#ffffff70;border-radius:9px;overflow:hidden;cursor:pointer;touch-action:none}
-.gallery-video-progress-fill{height:100%;width:0;background:var(--accent)}
-.gallery-video-time{min-width:82px;text-align:center;color:#fff;font-size:11px;white-space:nowrap;text-shadow:0 1px 3px #000}
-.gallery-video-overlay{position:absolute;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px;background:#000c;backdrop-filter:blur(5px)}
+
+.gallery-modal-box{
+  position:relative;
+  width:min(1100px,100%);
+  max-height:96vh;
+  overflow:hidden;
+  background:#151515;
+  border:1px solid #444;
+  border-radius:12px;
+  box-shadow:0 20px 70px #000b
+}
+
+/* HEADER/JUDUL POPUP DIHILANGKAN */
+.gallery-modal-head,
+.gallery-modal-title{
+  display:none!important;
+}
+
+/* X LANGSUNG DI POJOK KANAN ATAS VIDEO */
+.gallery-modal-close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:60;
+  width:36px;
+  height:36px;
+  border:1px solid #ffffff55;
+  border-radius:7px;
+  background:#171717d9;
+  color:#fff;
+  font-size:23px;
+  line-height:1;
+  cursor:pointer;
+  flex:none
+}
+
+.gallery-video-shell{
+  position:relative;
+  background:#000;
+  overflow:hidden
+}
+
+.gallery-video-shell video{
+  display:block;
+  width:100%;
+  max-height:78vh;
+  aspect-ratio:16/9;
+  object-fit:contain;
+  background:#000
+}
+
+.gallery-center-play{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  z-index:8;
+  width:68px;
+  height:68px;
+  border:2px solid #fff;
+  border-radius:50%;
+  color:#111;
+  background:#ff9d00eF;
+  font-size:29px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity .25s
+}
+
+.gallery-center-play.hidden{
+  opacity:0;
+  pointer-events:none
+}
+
+.gallery-video-controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:22;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:14px 12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.88));
+  opacity:1;
+  transition:opacity .25s
+}
+
+.gallery-video-shell.controls-hidden .gallery-video-controls{
+  opacity:0;
+  pointer-events:none
+}
+
+.gallery-video-control{
+  height:36px;
+  min-width:38px;
+  border:1px solid #ffffff45;
+  border-radius:6px;
+  background:#171717d9;
+  color:#fff;
+  cursor:pointer;
+  flex:none
+}
+
+.gallery-video-progress{
+  height:6px;
+  flex:1;
+  min-width:30px;
+  background:#ffffff70;
+  border-radius:9px;
+  overflow:hidden;
+  cursor:pointer;
+  touch-action:none
+}
+
+.gallery-video-progress-fill{
+  height:100%;
+  width:0;
+  background:var(--accent)
+}
+
+.gallery-video-time{
+  min-width:82px;
+  text-align:center;
+  color:#fff;
+  font-size:11px;
+  white-space:nowrap;
+  text-shadow:0 1px 3px #000
+}
+
+.gallery-video-overlay{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:#000c;
+  backdrop-filter:blur(5px)
+}
+
 .gallery-video-overlay.show{display:flex}
-.gallery-video-overlay-box{width:min(500px,94%);padding:28px 22px;text-align:center;background:#1b1b1b;border:1px solid #444;border-radius:12px;box-shadow:0 15px 50px #000b}
-.gallery-video-overlay-box h3{font-size:22px;color:#fff}
-.gallery-video-overlay-box p{margin:10px 0 17px;color:#bbb;font-size:13px;line-height:1.5}
-.gallery-video-continue{display:block;padding:15px;background:var(--accent);color:#111;text-decoration:none;font-size:14px;font-weight:900;border-radius:6px}
-.gallery-video-hint{padding:0 14px 13px;color:#999;font-size:11px}
-.gallery-video-shell.controls-hidden .gallery-center-play{opacity:0;pointer-events:none}
-.gallery-video-shell:fullscreen{width:100vw;height:100vh;height:100dvh;display:block;background:#000}
-.gallery-video-shell:fullscreen video{width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:contain}
-.gallery-video-shell:fullscreen .gallery-center-play{position:absolute;left:50%;top:50%}
-.gallery-video-shell:fullscreen .gallery-video-controls{position:absolute;left:0;right:0;bottom:0;padding:calc(14px + env(safe-area-inset-bottom)) 14px 14px;z-index:22}
-.gallery-video-shell:fullscreen .gallery-video-overlay{z-index:30}
+
+.gallery-video-overlay-box{
+  width:min(500px,94%);
+  padding:28px 22px;
+  text-align:center;
+  background:#1b1b1b;
+  border:1px solid #444;
+  border-radius:12px;
+  box-shadow:0 15px 50px #000b
+}
+
+.gallery-video-overlay-box h3{
+  font-size:22px;
+  color:#fff
+}
+
+.gallery-video-overlay-box p{
+  margin:10px 0 17px;
+  color:#bbb;
+  font-size:13px;
+  line-height:1.5
+}
+
+.gallery-video-continue{
+  display:block;
+  padding:15px;
+  background:var(--accent);
+  color:#111;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:900;
+  border-radius:6px
+}
+
+/* TIDAK ADA LAGI TEKS DI BAWAH VIDEO */
+.gallery-video-hint{
+  display:none!important
+}
+
+.gallery-video-shell.controls-hidden .gallery-center-play{
+  opacity:0;
+  pointer-events:none
+}
+
+.gallery-video-shell:fullscreen{
+  width:100vw;
+  height:100vh;
+  height:100dvh;
+  display:block;
+  background:#000
+}
+
+.gallery-video-shell:fullscreen video{
+  width:100%;
+  height:100%;
+  max-height:none;
+  aspect-ratio:auto;
+  object-fit:contain
+}
+
+.gallery-video-shell:fullscreen .gallery-center-play{
+  position:absolute;
+  left:50%;
+  top:50%
+}
+
+.gallery-video-shell:fullscreen .gallery-video-controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:calc(14px + env(safe-area-inset-bottom)) 14px 14px;
+  z-index:22
+}
+
+.gallery-video-shell:fullscreen .gallery-video-overlay{
+  z-index:30
+}
+
+.gallery-video-shell:fullscreen .gallery-modal-close{
+  z-index:60
+}
 
 footer{text-align:center;color:#777;font-size:11px;padding:25px 0}
-.player-shell:fullscreen,.player-shell.is-fullscreen{width:100vw;height:100vh;height:100dvh;border:0;border-radius:0;display:flex;align-items:center;justify-content:center;background:#000}
-.player-shell:fullscreen video,.player-shell.is-fullscreen video{width:100%;height:100%;max-height:100vh;max-height:100dvh;aspect-ratio:auto}
+.player-shell:fullscreen,.player-shell.is-fullscreen{
+  width:100vw;
+  height:100vh;
+  height:100dvh;
+  border:0;
+  border-radius:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#000
+}
+
+.player-shell:fullscreen video,.player-shell.is-fullscreen video{
+  width:100%;
+  height:100%;
+  max-height:100vh;
+  max-height:100dvh;
+  aspect-ratio:auto
+}
 
 @media(max-width:850px){
  .player-layout{grid-template-columns:1fr}
  .side-panel{display:none}
  .thumb-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
 @media(max-width:600px){
  .topbar{height:56px;padding:0 11px}
  .brand{font-size:18px}
@@ -141,14 +373,43 @@ footer{text-align:center;color:#777;font-size:11px;padding:25px 0}
  .time{min-width:52px;font-size:10px}
  .ctrl{width:33px;height:32px}
  .center-play-btn{width:58px;height:58px}
+
+ /* UKURAN POPUP TETAP, HEADER SUDAH DIHILANGKAN */
  .gallery-modal{padding:5px}
- .gallery-modal-box{max-height:98vh;border-radius:9px}
+ .gallery-modal-box{
+   max-height:98vh;
+   border-radius:9px
+ }
  .gallery-video-shell video{max-height:72vh}
- .gallery-modal-head{padding:10px 12px}
- .gallery-video-controls{gap:6px;padding:10px 8px}
- .gallery-video-time{min-width:70px;font-size:10px}
- .gallery-center-play{width:60px;height:60px;font-size:26px}
- .gallery-video-shell:fullscreen .gallery-video-controls{padding:10px 8px calc(10px + env(safe-area-inset-bottom))}
+
+ /* X TETAP DI ATAS KANAN VIDEO */
+ .gallery-modal-close{
+   top:8px;
+   right:8px;
+   width:36px;
+   height:36px
+ }
+
+ .gallery-video-controls{
+   gap:6px;
+   padding:10px 8px
+ }
+
+ .gallery-video-time{
+   min-width:70px;
+   font-size:10px
+ }
+
+ .gallery-center-play{
+   width:60px;
+   height:60px;
+   font-size:26px
+ }
+
+ .gallery-video-shell:fullscreen .gallery-video-controls{
+   padding:10px 8px calc(10px + env(safe-area-inset-bottom))
+ }
+
  .continue-box{width:94%;padding:28px 18px}
  .continue-box h2{font-size:21px}
  .ad-button{padding:15px 12px}
@@ -168,23 +429,51 @@ footer{text-align:center;color:#777;font-size:11px;padding:25px 0}
   filter:none!important;
   opacity:1!important;
   forced-color-adjust:none!important;
-  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color:transparent
 }
-.ctrl,.gallery-video-control{font-weight:900!important;text-shadow:none!important}
+
+.ctrl,.gallery-video-control{
+  font-weight:900!important;
+  text-shadow:none!important
+}
+
 .center-play-btn,.gallery-center-play{
   -webkit-appearance:none!important;
   appearance:none!important;
   color:#111!important;
   background:#ff9d00!important;
   border:2px solid #fff!important;
-  forced-color-adjust:none!important;
+  forced-color-adjust:none!important
 }
-.ctrl:active,.gallery-video-control:active{background:#333!important;color:#fff!important}
+
+.ctrl:active,.gallery-video-control:active{
+  background:#333!important;
+  color:#fff!important
+}
+
 html,body{color-scheme:dark}
-.progress,.gallery-video-progress{background:#777!important;background-color:#777!important;opacity:1!important}
-.progress-fill,.gallery-video-progress-fill{background:#ff9000!important;background-color:#ff9000!important;opacity:1!important}
-.gallery-video-progress{height:7px!important;min-height:7px!important}
-.gallery-video-progress-fill{height:100%!important;min-height:7px!important}
+
+.progress,.gallery-video-progress{
+  background:#777!important;
+  background-color:#777!important;
+  opacity:1!important
+}
+
+.progress-fill,.gallery-video-progress-fill{
+  background:#ff9000!important;
+  background-color:#ff9000!important;
+  opacity:1!important
+}
+
+.gallery-video-progress{
+  height:7px!important;
+  min-height:7px!important
+}
+
+.gallery-video-progress-fill{
+  height:100%!important;
+  min-height:7px!important
+}
 
 /* TOMBOL JOIN TELEGRAM */
 .telegram-banner{
@@ -201,11 +490,20 @@ html,body{color-scheme:dark}
   text-decoration:none;
   font-size:23px;
   font-weight:bold;
-  box-shadow:0 8px 25px #229ed955;
+  box-shadow:0 8px 25px #229ed955
 }
-.telegram-banner svg{width:38px;height:38px;flex-shrink:0}
+
+.telegram-banner svg{
+  width:38px;
+  height:38px;
+  flex-shrink:0
+}
+
 @media(max-width:600px){
- .telegram-banner{min-height:80px;font-size:20px}
+ .telegram-banner{
+   min-height:80px;
+   font-size:20px
+ }
 }
 </style>
 </head>
@@ -227,6 +525,7 @@ html,body{color-scheme:dark}
 
   <div class="player-layout">
     <div class="player-column">
+
       <section class="player-shell" id="mainPlayer" aria-label="Pemutar video utama">
         <video id="mainVideo" playsinline preload="metadata" src="https://cdn.videy.co/zyZGBf8M1.mp4"></video>
         <div class="video-top-gradient"></div>
@@ -245,7 +544,9 @@ html,body{color-scheme:dark}
 
         <div class="controls">
           <button class="ctrl" type="button" data-action="play" aria-label="Putar atau jeda">▶</button>
-          <div class="progress" data-action="seek" role="slider" aria-label="Posisi video" tabindex="0"><div class="progress-fill"></div></div>
+          <div class="progress" data-action="seek" role="slider" aria-label="Posisi video" tabindex="0">
+            <div class="progress-fill"></div>
+          </div>
           <div class="time">0:00 / 0:00</div>
           <button class="ctrl" type="button" data-action="fullscreen" aria-label="Fullscreen">⛶</button>
         </div>
@@ -277,17 +578,22 @@ html,body{color-scheme:dark}
     </div>
   </section>
 
+  <!-- POPUP SEMUA VIDEO 1-20 DAN SETERUSNYA -->
   <div class="gallery-modal" id="galleryModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pemutar video pilihan">
+
     <div class="gallery-modal-box">
-      <div class="gallery-modal-head">
-        <div class="gallery-modal-title" id="galleryModalTitle">Video pilihan</div>
-        <button class="gallery-modal-close" id="galleryModalClose" type="button" aria-label="Tutup">×</button>
-      </div>
+
+      <!-- HANYA TOMBOL X, TANPA HEADER / JUDUL VIDEO -->
+      <button class="gallery-modal-close" id="galleryModalClose" type="button" aria-label="Tutup">×</button>
 
       <div class="gallery-video-shell" id="galleryVideoShell">
+
         <video id="galleryVideo" playsinline preload="metadata"></video>
+
+        <!-- PLAY TENGAH TETAP -->
         <button class="gallery-center-play" id="galleryCenterPlay" type="button" aria-label="Putar atau jeda video">▶</button>
 
+        <!-- GATE TETAP SAMA -->
         <div class="gallery-video-overlay" id="galleryVideoOverlay">
           <div class="gallery-video-overlay-box">
             <div class="ad-icon">▶</div>
@@ -297,17 +603,21 @@ html,body{color-scheme:dark}
           </div>
         </div>
 
+        <!-- KONTROL BAWAH TETAP -->
         <div class="gallery-video-controls">
           <button class="gallery-video-control" id="galleryPlay" type="button" aria-label="Putar atau jeda">▶</button>
+
           <div class="gallery-video-progress" id="galleryProgress" role="slider" tabindex="0" aria-label="Posisi video">
             <div class="gallery-video-progress-fill" id="galleryProgressFill"></div>
           </div>
+
           <div class="gallery-video-time" id="galleryTime">0:00 / 0:00</div>
+
+          <!-- FULLSCREEN TETAP MANUAL -->
           <button class="gallery-video-control" id="galleryFullscreen" type="button" aria-label="Layar penuh">⛶</button>
         </div>
-      </div>
 
-      <div class="gallery-video-hint" data-i18n="popupHint">Video diputar di jendela ini. Tutup untuk kembali ke daftar video.</div>
+      </div>
     </div>
   </div>
 
@@ -408,8 +718,7 @@ let galleryControlsTimer=null;
 
 function showGalleryControls(){
  clearTimeout(galleryControlsTimer);
- 
- /* JANGAN TAMPILKAN KONTROL SAAT GATE AKTIF */
+
  if(galleryOverlay.classList.contains("show")){
   galleryShell.classList.add("controls-hidden");
   galleryCenterPlay.classList.add("hidden");
@@ -466,9 +775,10 @@ function updateGalleryTime(){
 function openGalleryPlayer(src,title){
  galleryGateIndex=0;
  clearTimeout(galleryControlsTimer);
+
  galleryShell.classList.remove("controls-hidden");
- $("galleryModalTitle").textContent=title;
  galleryOverlay.classList.remove("show");
+
  galleryModal.classList.add("show");
  galleryModal.setAttribute("aria-hidden","false");
  document.body.classList.add("modal-open");
@@ -545,6 +855,7 @@ galleryVideo.addEventListener("timeupdate",updateGalleryTime);
 galleryShell.addEventListener("pointerdown",e=>{
  if(galleryOverlay.classList.contains("show"))return;
  if(e.target.closest(".gallery-video-overlay"))return;
+ if(e.target.closest("#galleryModalClose"))return;
  showGalleryControls();
 });
 
@@ -560,7 +871,6 @@ galleryVideo.addEventListener("timeupdate",()=>{
   galleryGateIndex++;
   galleryVideo.pause();
 
-  /* SEMBUNYIKAN SEMUA KONTROL VIDEO */
   clearTimeout(galleryControlsTimer);
   galleryShell.classList.add("controls-hidden");
   galleryCenterPlay.classList.add("hidden");
@@ -618,7 +928,6 @@ galleryProgress.addEventListener("keydown",e=>{
 $("galleryContinueButton").addEventListener("click",()=>{
  galleryOverlay.classList.remove("show");
 
- /* KONTROL TETAP DISEMBUNYIKAN SEBENTAR SETELAH LANJUT */
  galleryShell.classList.add("controls-hidden");
  galleryCenterPlay.classList.add("hidden");
 
@@ -631,7 +940,7 @@ $("galleryContinueButton").addEventListener("click",()=>{
  },700);
 });
 
-/* FULLSCREEN POPUP */
+/* FULLSCREEN POPUP TETAP MANUAL */
 $("galleryFullscreen").addEventListener("click",()=>{
  fullscreen(galleryShell);
  showGalleryControls();
@@ -733,7 +1042,6 @@ let centerTimer=null;
 function showMainControls(){
  clearTimeout(controlsTimer);
 
- /* SAAT OVERLAY LANJUTKAN VIDEO AKTIF, SEMUA KONTROL DISEMBUNYIKAN */
  if(overlay.classList.contains("show")){
   shell.classList.add("controls-hidden");
   center.classList.add("hidden");
@@ -795,7 +1103,6 @@ video.addEventListener("timeupdate",()=>{
   gateIndex++;
   video.pause();
 
-  /* HENTIKAN SEMUA KONTROL AGAR TIDAK MENUTUPI OVERLAY */
   clearTimeout(controlsTimer);
   shell.classList.add("controls-hidden");
   center.classList.add("hidden");
@@ -839,7 +1146,6 @@ progress.onkeydown=e=>{
 $("mainContinueButton").onclick=()=>{
  overlay.classList.remove("show");
 
- /* SETELAH TOMBOL DITEKAN, VIDEO LANJUT DAN KONTROL TETAP TERSEMBUNYI SESAAAT */
  shell.classList.add("controls-hidden");
  center.classList.add("hidden");
 
