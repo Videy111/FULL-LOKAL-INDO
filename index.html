@@ -87,7 +87,6 @@ main{max-width:1200px;margin:auto;padding:20px 16px 45px}
 .thumb-card-title{font-size:12px;font-weight:700;line-height:1.4;margin-top:7px}
 .thumb-card-meta{font-size:10px;color:#999;margin-top:4px}
 
-/* POPUP GALERI */
 .gallery-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.88);backdrop-filter:blur(7px)}
 .gallery-modal.show{display:flex}
 body.modal-open{overflow:hidden}
@@ -151,7 +150,6 @@ footer{text-align:center;color:#777;font-size:11px;padding:25px 0}
  .gallery-video-shell:fullscreen .gallery-video-controls{padding:10px 8px calc(10px + env(safe-area-inset-bottom))}
 }
 
-/* FIX WARNA TOMBOL VIDEO DI FACEBOOK BROWSER */
 .ctrl,.gallery-video-control{
   -webkit-appearance:none!important;
   appearance:none!important;
@@ -181,7 +179,6 @@ html,body{color-scheme:dark}
 .gallery-video-progress{height:7px!important;min-height:7px!important}
 .gallery-video-progress-fill{height:100%!important;min-height:7px!important}
 
-/* TOMBOL JOIN TELEGRAM */
 .telegram-banner{
   display:flex;
   align-items:center;
@@ -223,7 +220,7 @@ html,body{color-scheme:dark}
   <div class="player-layout">
     <div class="player-column">
       <section class="player-shell" id="mainPlayer" aria-label="Pemutar video utama">
-        <video id="mainVideo" playsinline preload="metadata" src="https://cdn2.videy.co/ZXhGr7Jy1.mp4"></video>
+        <video id="mainVideo" playsinline preload="metadata" src="https://cdn.videy.co/zyZGBf8M1.mp4"></video>
         <div class="video-top-gradient"></div>
         <div class="player-badge" data-i18n="badge">HD • Mobile Friendly</div>
         <button class="center-play-btn" type="button" data-action="center-play" aria-label="Putar video">▶</button>
@@ -258,7 +255,6 @@ html,body{color-scheme:dark}
     </aside>
   </div>
 
-  <!-- SEMUA 20 VIDEO DALAM SATU GALERI -->
   <section>
     <h2 class="section-heading" data-i18n="allVideos">▶ Semua Video</h2>
     <div class="thumb-grid" id="mainThumbGrid"></div>
@@ -273,7 +269,6 @@ html,body{color-scheme:dark}
     </div>
   </section>
 
-  <!-- POPUP PEMUTAR VIDEO -->
   <div class="gallery-modal" id="galleryModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pemutar video pilihan">
     <div class="gallery-modal-box">
       <div class="gallery-modal-head">
@@ -308,7 +303,6 @@ html,body{color-scheme:dark}
     </div>
   </div>
 
-  <!-- TOMBOL JOIN CHANNEL TELEGRAM -->
   <a href="https://t.me/asupan_videyy1" target="_blank" rel="noopener noreferrer" class="telegram-banner">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path fill="currentColor" d="M21.9 4.6 18.7 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6.1 13.6l-5-1.6c-1.1-.3-1.1-1.1.2-1.6L20.7 3.1c.9-.3 1.6.2 1.2 1.5Z"/>
@@ -325,10 +319,10 @@ html,body{color-scheme:dark}
 
 const AD_URL="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8";
 
-/* 20 LINK VIDEO BARU SESUAI URUTAN */
-const MAIN_SOURCE="https://cdn2.videy.co/ZXhGr7Jy1.mp4";
+const MAIN_SOURCE="https://cdn.videy.co/zyZGBf8M1.mp4";
 
 const MAIN_SOURCES=[
+"https://cdn2.videy.co/ZXhGr7Jy1.mp4",
 "https://cdn2.videy.co/ihZuqR9o1.mp4",
 "https://cdn2.videy.co/nQ8MkNAN1.mp4",
 "https://cdn2.videy.co/IUD4in5q1.mp4",
@@ -350,7 +344,6 @@ const MAIN_SOURCES=[
 "https://cdn2.videy.co/vyUIkysQ1.mp4"
 ];
 
-/* GAMBAR POSTER ASLI TETAP DIPERTAHANKAN */
 const POSTERS_MAIN=[
 "https://jpcdn.it/img/bc17e9c3770b3b2ef0a1cd3a39440d1b.jpg",
 "https://jpcdn.it/img/1c92edeed268a3488d5304ab40d47649.jpg",
@@ -390,7 +383,6 @@ async function fullscreen(el){
  }
 }
 
-/* POPUP PLAYER GALERI */
 const galleryModal=$("galleryModal");
 const galleryVideo=$("galleryVideo");
 const galleryShell=$("galleryVideoShell");
@@ -536,7 +528,6 @@ galleryVideo.addEventListener("click",()=>{
  showGalleryControls();
 });
 
-/* GATE IKLAN POPUP */
 galleryVideo.addEventListener("timeupdate",()=>{
  if(galleryGateIndex<GATE_TIMES.length&&
     galleryVideo.currentTime>=GATE_TIMES[galleryGateIndex]){
@@ -547,7 +538,6 @@ galleryVideo.addEventListener("timeupdate",()=>{
  }
 });
 
-/* KLIK DAN GESER PROGRESS BAR POPUP */
 let gallerySeeking=false;
 
 function gallerySeekFromPointer(e){
@@ -598,7 +588,6 @@ $("galleryContinueButton").addEventListener("click",()=>{
  galleryVideo.play().catch(()=>{});
 });
 
-/* FULLSCREEN POPUP */
 $("galleryFullscreen").addEventListener("click",()=>{
  fullscreen(galleryShell);
  showGalleryControls();
@@ -618,7 +607,6 @@ document.addEventListener("fullscreenchange",()=>{
  }
 });
 
-/* KARTU THUMBNAIL */
 function makeThumbCard(src,index,kind,poster){
  const card=document.createElement("button");
  card.type="button";
@@ -654,7 +642,7 @@ function makeThumbCard(src,index,kind,poster){
  const title=document.createElement("div");
  title.className="thumb-card-title";
  title.textContent=kind==="main"?
-  (index===0?"Video Utama":"Video "+index):
+  "Video "+(index+1):
   "Trending Video "+(index+1);
 
  const meta=document.createElement("div");
@@ -667,7 +655,7 @@ function makeThumbCard(src,index,kind,poster){
   openGalleryPlayer(
    src,
    kind==="main"?
-    (index===0?"Video Utama":"Video "+index):
+    "Video "+(index+1):
     "Trending Video "+(index+1)
   );
  });
@@ -675,7 +663,6 @@ function makeThumbCard(src,index,kind,poster){
  return card;
 }
 
-/* PLAYER UTAMA */
 const shell=$("mainPlayer");
 const video=$("mainVideo");
 const overlay=$("continueOverlay");
@@ -781,16 +768,13 @@ document.addEventListener("fullscreenchange",()=>{
  showMainControls();
 });
 
-/* GALERI: SEMUA VIDEO UTAMA DIGABUNG MENJADI SATU DAFTAR */
 const mainGrid=$("mainThumbGrid");
-const mainList=[MAIN_SOURCE,...MAIN_SOURCES];
+const mainList=MAIN_SOURCES;
 const side=$("sideSuggestions");
 
-/* Masukkan semua 20 video ke galeri yang sama */
 mainList.forEach((src,i)=>{
  mainGrid.appendChild(makeThumbCard(src,i,"main",POSTERS_MAIN[i]));
 
- /* Panel pilihan video di samping tetap dipertahankan */
  if(i<4){
   const item=document.createElement("div");
   item.className="side-item";
@@ -818,20 +802,19 @@ mainList.forEach((src,i)=>{
 
   const label=document.createElement("div");
   label.className="side-item-text";
-  label.textContent=i===0?"Video Utama":"Video "+i;
+  label.textContent="Video "+(i+1);
 
   const small=document.createElement("small");
   small.textContent="Putar video";
   label.appendChild(small);
 
   item.append(th,label);
-  item.onclick=()=>openGalleryPlayer(src,i===0?"Video Utama":"Video "+i);
+  item.onclick=()=>openGalleryPlayer(src,"Video "+(i+1));
   item.style.cursor="pointer";
   side.appendChild(item);
  }
 });
 
-/* TOMBOL BAGIKAN */
 $("shareButton").onclick=async()=>{
  try{
   if(navigator.share){
@@ -937,7 +920,6 @@ applyLanguage(lang);
 })();
 </script>
 
-<!-- HISTATS -->
 <script>
 var _Hasync = _Hasync || [];
 _Hasync.push(['Histats.start','1,5043495,4,0,0,0,00010000']);
@@ -952,7 +934,6 @@ _Hasync.push(['Histats.track_hits','']);
 })();
 </script>
 <noscript><a href="/" target="_blank" rel="noopener noreferrer"><img src="https://sstatic1.histats.com/0.gif?5043495&101" alt="web tracker" border="0"></a></noscript>
-<!-- HISTATS END -->
 
 </body>
 </html>
