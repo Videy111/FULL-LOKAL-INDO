@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090909">
+<title>🎬FULL LOKAL NDO</title>
+<meta name="description" content="Tonton video terbaru dan video lainnya.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="🎬FULL LOKAL INDO">
+<meta property="og:description" content="Tonton video terbaru dan video lainnya.">
+<meta property="og:image" content="https://jpcdn.it/img/1bc740750a11fbd3a312ca5a8d6bd4e6.jpg">
+<meta property="og:image:alt" content="🎬FULL LOKAL INDO">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="🎬FULL LOKAL INDO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="🎬FULL LOKAL INDO">
+<meta name="twitter:description" content="Tonton video terbaru dan video lainnya.">
+<meta name="twitter:image" content="https://jpcdn.it/img/1bc740750a11fbd3a312ca5a8d6bd4e6.jpg">
+
+<style>
+:root{--bg:#090909;--panel:#171717;--panel2:#202020;--text:#f5f5f5;--muted:#a5a5a5;--line:#303030;--accent:#ff9000;--accent2:#ffb000}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);scroll-behavior:smooth}
+body{min-height:100vh;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button{font:inherit}
+.topbar{height:64px;position:sticky;top:0;z-index:50;background:#101010;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 max(16px,calc((100% - 1200px)/2))}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;letter-spacing:-.7px}
+.brand-mark{background:var(--accent);color:#111;border-radius:5px;padding:5px 9px;font-size:18px}
+.brand-name span{color:var(--accent)}
+.top-actions{display:flex;align-items:center;gap:9px}
+.language-switch{display:flex;gap:3px;padding:4px;background:#242424;border-radius:7px}
+.lang-btn,.share-top{border:0;color:#eee;background:transparent;cursor:pointer}
+.lang-btn{padding:7px 9px;border-radius:5px;font-size:11px;font-weight:800}
+.lang-btn.active{background:var(--accent);color:#111}
+.share-top{width:36px;height:36px;border:1px solid #393939;border-radius:7px;font-size:20px}
+main{max-width:1200px;margin:auto;padding:20px 16px 45px}
+.section-heading{display:flex;align-items:center;gap:9px;margin:22px 0 13px;font-size:20px;font-weight:800}
+.section-heading:before{content:"";width:5px;height:22px;background:var(--accent);border-radius:3px}
+.player-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:17px;align-items:start}
+.player-column{min-width:0}
+.player-shell{position:relative;overflow:hidden;background:#000;border:1px solid #333;border-radius:9px}
+.player-shell video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#000}
+.video-top-gradient{position:absolute;inset:0 0 auto;height:90px;background:linear-gradient(#0009,transparent);pointer-events:none}
+.player-badge{position:absolute;top:12px;left:12px;z-index:3;background:#111c;color:#fff;border:1px solid #ffffff30;border-radius:4px;padding:6px 9px;font-size:11px;font-weight:bold;pointer-events:none}
+.center-play-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10;width:66px;height:66px;border:2px solid #fff;border-radius:50%;color:#111;background:#ff9d00eF;font-size:27px;cursor:pointer}
+.center-play-btn.hidden{opacity:0;pointer-events:none}
+.controls{position:absolute;left:10px;right:10px;bottom:10px;z-index:12;display:flex;align-items:center;gap:8px;transition:opacity .2s}
+.player-shell.controls-hidden .controls{opacity:0;pointer-events:none}
+.ctrl{width:36px;height:34px;flex:none;border:1px solid #ffffff30;border-radius:5px;color:#fff;background:#111c;cursor:pointer}
+.progress{height:5px;flex:1;min-width:20px;background:#ffffff55;border-radius:9px;overflow:hidden;cursor:pointer}
+.progress-fill{height:100%;width:0;background:var(--accent)}
+.time{font-size:11px;min-width:76px;text-align:center;white-space:nowrap;color:#fff}
+.continue-overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:#000c;backdrop-filter:blur(5px)}
+.continue-overlay.show{display:flex}
+.continue-box{width:min(400px,100%);padding:24px 20px;text-align:center;background:#1b1b1b;border:1px solid #444;border-radius:10px}
+.ad-icon{font-size:26px;color:var(--accent);margin-bottom:9px}
+.continue-box h2{font-size:21px}
+.continue-box p{margin:10px 0 17px;color:#bbb;font-size:13px;line-height:1.6}
+.ad-button{display:block;padding:13px 15px;background:var(--accent);color:#111;text-decoration:none;font-size:13px;font-weight:900;border-radius:5px}
+.small-note{margin-top:10px;color:#999;font-size:10px}
+.info{padding:14px 2px 0}
+.title{font-size:23px;line-height:1.3;font-weight:800}
+.meta{margin-top:6px;color:#aaa;font-size:13px;line-height:1.5}
+.side-panel{background:#171717;border:1px solid #303030;border-radius:8px;padding:13px}
+.side-panel h3{font-size:14px;margin-bottom:12px}
+.side-item{display:flex;gap:9px;margin-bottom:12px;align-items:center}
+.side-thumb{width:105px;aspect-ratio:16/9;flex:none;position:relative;overflow:hidden;background:#292929;border-radius:5px}
+.side-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.side-thumb .thumb-fallback{position:absolute;inset:0;display:grid;place-items:center;color:#ffad25;font-size:23px;background:linear-gradient(135deg,#292929,#111)}
+.side-item-text{font-size:12px;font-weight:700;line-height:1.4}
+.side-item-text small{display:block;color:#999;font-weight:400;margin-top:4px}
+.collection-card{display:flex;align-items:center;gap:14px;padding:18px;margin:20px 0;background:#191919;border:1px solid #4a351a;border-left:4px solid var(--accent);border-radius:7px}
+.collection-icon{font-size:30px}
+.collection-content{flex:1}
+.collection-content h2{font-size:16px;margin-bottom:5px}
+.collection-content p{font-size:12px;color:#aaa;line-height:1.5}
+.collection-button{display:inline-block;margin-top:11px;padding:10px 14px;border-radius:5px;background:var(--accent);color:#111;text-decoration:none;font-size:12px;font-weight:900}
+.thumb-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.thumb-card{min-width:0;cursor:pointer;background:transparent;border:0;color:#fff;text-align:left}
+.thumb-image{position:relative;aspect-ratio:16/9;background:#252525;border-radius:6px;overflow:hidden;border:1px solid #333}
+.thumb-image img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-image .thumb-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#303030,#101010);color:var(--accent);font-size:28px}
+.thumb-image .duration-tag{position:absolute;right:6px;bottom:6px;padding:3px 5px;background:#000c;border-radius:3px;font-size:10px}
+.thumb-card:hover .thumb-image{border-color:var(--accent)}
+.thumb-card-title{font-size:12px;font-weight:700;line-height:1.4;margin-top:7px}
+.thumb-card-meta{font-size:10px;color:#999;margin-top:4px}
+
+/* POPUP GALERI */
+.gallery-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.88);backdrop-filter:blur(7px)}
+.gallery-modal.show{display:flex}
+body.modal-open{overflow:hidden}
+.gallery-modal-box{position:relative;width:min(1100px,100%);max-height:96vh;overflow:auto;background:#151515;border:1px solid #444;border-radius:12px;box-shadow:0 20px 70px #000b}
+.gallery-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid #333}
+.gallery-modal-title{font-size:15px;font-weight:800;color:#fff}
+.gallery-modal-close{width:36px;height:36px;border:1px solid #555;border-radius:7px;background:#292929;color:#fff;font-size:23px;cursor:pointer;flex:none}
+.gallery-video-shell{position:relative;background:#000;overflow:hidden}
+.gallery-video-shell video{display:block;width:100%;max-height:78vh;aspect-ratio:16/9;object-fit:contain;background:#000}
+.gallery-center-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;width:68px;height:68px;border:2px solid #fff;border-radius:50%;color:#111;background:#ff9d00eF;font-size:29px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .25s}
+.gallery-center-play.hidden{opacity:0;pointer-events:none}
+.gallery-video-controls{position:absolute;left:0;right:0;bottom:0;z-index:22;display:flex;align-items:center;gap:9px;padding:14px 12px;background:linear-gradient(transparent,rgba(0,0,0,.88));opacity:1;transition:opacity .25s}
+.gallery-video-shell.controls-hidden .gallery-video-controls{opacity:0;pointer-events:none}
+.gallery-video-control{height:36px;min-width:38px;border:1px solid #ffffff45;border-radius:6px;background:#171717d9;color:#fff;cursor:pointer;flex:none}
+.gallery-video-progress{height:6px;flex:1;min-width:30px;background:#ffffff70;border-radius:9px;overflow:hidden;cursor:pointer;touch-action:none}
+.gallery-video-progress-fill{height:100%;width:0;background:var(--accent)}
+.gallery-video-time{min-width:82px;text-align:center;color:#fff;font-size:11px;white-space:nowrap;text-shadow:0 1px 3px #000}
+.gallery-video-overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:16px;background:#000c;backdrop-filter:blur(5px)}
+.gallery-video-overlay.show{display:flex}
+.gallery-video-overlay-box{width:min(390px,100%);padding:22px 18px;text-align:center;background:#1b1b1b;border:1px solid #444;border-radius:10px}
+.gallery-video-overlay-box h3{font-size:20px;color:#fff}
+.gallery-video-overlay-box p{margin:10px 0 16px;color:#bbb;font-size:13px;line-height:1.5}
+.gallery-video-continue{display:block;padding:13px;background:var(--accent);color:#111;text-decoration:none;font-size:13px;font-weight:900;border-radius:6px}
+.gallery-video-hint{padding:0 14px 13px;color:#999;font-size:11px}
+.gallery-video-shell.controls-hidden .gallery-center-play{opacity:0;pointer-events:none}
+.gallery-video-shell:fullscreen{width:100vw;height:100vh;height:100dvh;display:block;background:#000}
+.gallery-video-shell:fullscreen video{width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:contain}
+.gallery-video-shell:fullscreen .gallery-center-play{position:absolute;left:50%;top:50%}
+.gallery-video-shell:fullscreen .gallery-video-controls{position:absolute;left:0;right:0;bottom:0;padding:calc(14px + env(safe-area-inset-bottom)) 14px 14px;z-index:22}
+.gallery-video-shell:fullscreen .gallery-video-overlay{z-index:30}
+
+footer{text-align:center;color:#777;font-size:11px;padding:25px 0}
+.player-shell:fullscreen,.player-shell.is-fullscreen{width:100vw;height:100vh;height:100dvh;border:0;border-radius:0;display:flex;align-items:center;justify-content:center;background:#000}
+.player-shell:fullscreen video,.player-shell.is-fullscreen video{width:100%;height:100%;max-height:100vh;max-height:100dvh;aspect-ratio:auto}
+
+@media(max-width:850px){
+ .player-layout{grid-template-columns:1fr}
+ .side-panel{display:none}
+ .thumb-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .topbar{height:56px;padding:0 11px}
+ .brand{font-size:18px}
+ main{padding:12px 10px 35px}
+ .thumb-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .player-shell video{aspect-ratio:5/4}
+ .title{font-size:19px}
+ .collection-card{padding:13px;gap:10px}
+ .collection-content h2{font-size:14px}
+ .collection-content p{font-size:11px}
+ .time{min-width:52px;font-size:10px}
+ .ctrl{width:33px;height:32px}
+ .center-play-btn{width:58px;height:58px}
+ .gallery-modal{padding:5px}
+ .gallery-modal-box{max-height:98vh;border-radius:9px}
+ .gallery-video-shell video{max-height:72vh}
+ .gallery-modal-head{padding:10px 12px}
+ .gallery-video-controls{gap:6px;padding:10px 8px}
+ .gallery-video-time{min-width:70px;font-size:10px}
+ .gallery-center-play{width:60px;height:60px;font-size:26px}
+ .gallery-video-shell:fullscreen .gallery-video-controls{padding:10px 8px calc(10px + env(safe-area-inset-bottom))}
+}
+
+/* FIX WARNA TOMBOL VIDEO DI FACEBOOK BROWSER */
+.ctrl,.gallery-video-control{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  background:#171717!important;
+  background-color:#171717!important;
+  color:#fff!important;
+  border:1px solid #666!important;
+  box-shadow:none!important;
+  filter:none!important;
+  opacity:1!important;
+  forced-color-adjust:none!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.ctrl,.gallery-video-control{font-weight:900!important;text-shadow:none!important}
+.center-play-btn,.gallery-center-play{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  color:#111!important;
+  background:#ff9d00!important;
+  border:2px solid #fff!important;
+  forced-color-adjust:none!important;
+}
+.ctrl:active,.gallery-video-control:active{background:#333!important;color:#fff!important}
+html,body{color-scheme:dark}
+.progress,.gallery-video-progress{background:#777!important;background-color:#777!important;opacity:1!important}
+.progress-fill,.gallery-video-progress-fill{background:#ff9000!important;background-color:#ff9000!important;opacity:1!important}
+.gallery-video-progress{height:7px!important;min-height:7px!important}
+.gallery-video-progress-fill{height:100%!important;min-height:7px!important}
+
+/* TOMBOL JOIN TELEGRAM */
+.telegram-banner{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  width:100%;
+  min-height:90px;
+  margin:25px 0;
+  border-radius:60px;
+  background:#229ed9;
+  color:white;
+  text-decoration:none;
+  font-size:23px;
+  font-weight:bold;
+  box-shadow:0 8px 25px #229ed955;
+}
+.telegram-banner svg{width:38px;height:38px;flex-shrink:0}
+@media(max-width:600px){
+ .telegram-banner{min-height:80px;font-size:20px}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">▶</div><div class="brand-name">VIDEO<span>TRENDING</span></div></div>
+  <div class="top-actions">
+    <div class="language-switch" aria-label="Pilih bahasa">
+      <button class="lang-btn active" type="button" data-lang="id">ID</button>
+      <button class="lang-btn" type="button" data-lang="en">EN</button>
+    </div>
+    <button class="share-top" type="button" id="shareButton" aria-label="Bagikan">↗</button>
+  </div>
+</header>
+
+<main>
+  <h2 class="section-heading" data-i18n="watchNow">▶ Tonton Sekarang</h2>
+
+  <div class="player-layout">
+    <div class="player-column">
+      <section class="player-shell" id="mainPlayer" aria-label="Pemutar video utama">
+        <video id="mainVideo" playsinline preload="metadata" src="https://cdn2.videy.co/mi5SDRPX1.mp4"></video>
+        <div class="video-top-gradient"></div>
+        <div class="player-badge" data-i18n="badge">HD • Mobile Friendly</div>
+        <button class="center-play-btn" type="button" data-action="center-play" aria-label="Putar video">▶</button>
+
+        <div class="continue-overlay" id="continueOverlay">
+          <div class="continue-box">
+            <div class="ad-icon">▶</div>
+            <h2 data-i18n="continueTitle">Lanjutkan Video</h2>
+            <p data-i18n="continueDescription">Video dijeda sementara. Tekan tombol di bawah untuk membuka tautan iklan dan melanjutkan video.</p>
+            <a class="ad-button" href="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8" target="_blank" rel="noopener noreferrer" id="mainContinueButton" data-i18n="continueButton">Lanjutkan &amp; Buka Iklan</a>
+            <div class="small-note" data-i18n="adNote">Tautan dibuka hanya setelah kamu menekan tombol.</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="ctrl" type="button" data-action="play" aria-label="Putar atau jeda">▶</button>
+          <div class="progress" data-action="seek" role="slider" aria-label="Posisi video" tabindex="0"><div class="progress-fill"></div></div>
+          <div class="time">0:00 / 0:00</div>
+          <button class="ctrl" type="button" data-action="fullscreen" aria-label="Fullscreen">⛶</button>
+        </div>
+      </section>
+
+      <section class="info">
+        <h1 class="title" id="videoTitle">Video Utama</h1>
+        <div class="meta" id="videoDescription">Nikmati video dengan tampilan nyaman di HP maupun desktop.</div>
+      </section>
+    </div>
+
+    <aside class="side-panel">
+      <h3 data-i18n="popularNow">🔥 Pilihan Video</h3>
+      <div id="sideSuggestions"></div>
+    </aside>
+  </div>
+
+  <!-- SEMUA VIDEO UTAMA DAN TRENDING DIGABUNG DI SINI -->
+  <section>
+    <h2 class="section-heading" data-i18n="allVideos">▶ Semua Video</h2>
+    <div class="thumb-grid" id="mainThumbGrid"></div>
+  </section>
+
+  <section class="collection-card" aria-label="Kumpulan video lengkap">
+    <div class="collection-icon">🎬</div>
+    <div class="collection-content">
+      <h2 data-i18n="collectionTitle">🔥 Kumpulan Video Lengkap</h2>
+      <p data-i18n="collectionDescription">Temukan video lainnya dalam satu koleksi. Klik tombol di bawah untuk melihat selengkapnya.</p>
+      <a class="collection-button" href="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8" target="_blank" rel="noopener noreferrer" data-i18n="collectionButton">Lihat Koleksi Video Lengkap ↗</a>
+    </div>
+  </section>
+
+  <!-- POPUP PEMUTAR VIDEO -->
+  <div class="gallery-modal" id="galleryModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Pemutar video pilihan">
+    <div class="gallery-modal-box">
+      <div class="gallery-modal-head">
+        <div class="gallery-modal-title" id="galleryModalTitle">Video pilihan</div>
+        <button class="gallery-modal-close" id="galleryModalClose" type="button" aria-label="Tutup">×</button>
+      </div>
+
+      <div class="gallery-video-shell" id="galleryVideoShell">
+        <video id="galleryVideo" playsinline preload="metadata"></video>
+        <button class="gallery-center-play" id="galleryCenterPlay" type="button" aria-label="Putar atau jeda video">▶</button>
+
+        <div class="gallery-video-overlay" id="galleryVideoOverlay">
+          <div class="gallery-video-overlay-box">
+            <div class="ad-icon">▶</div>
+            <h3 data-i18n="continueTitle">Lanjutkan Video</h3>
+            <p data-i18n="continueDescription">Video dijeda sementara. Tekan tombol di bawah untuk membuka tautan iklan dan melanjutkan video.</p>
+            <a class="gallery-video-continue" id="galleryContinueButton" href="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8" target="_blank" rel="noopener noreferrer" data-i18n="continueButton">Lanjutkan &amp; Buka Iklan</a>
+          </div>
+        </div>
+
+        <div class="gallery-video-controls">
+          <button class="gallery-video-control" id="galleryPlay" type="button" aria-label="Putar atau jeda">▶</button>
+          <div class="gallery-video-progress" id="galleryProgress" role="slider" tabindex="0" aria-label="Posisi video">
+            <div class="gallery-video-progress-fill" id="galleryProgressFill"></div>
+          </div>
+          <div class="gallery-video-time" id="galleryTime">0:00 / 0:00</div>
+          <button class="gallery-video-control" id="galleryFullscreen" type="button" aria-label="Layar penuh">⛶</button>
+        </div>
+      </div>
+
+      <div class="gallery-video-hint" data-i18n="popupHint">Video diputar di jendela ini. Tutup untuk kembali ke daftar video.</div>
+    </div>
+  </div>
+
+  <!-- TOMBOL JOIN CHANNEL TELEGRAM -->
+  <a href="https://t.me/asupan_videyy1" target="_blank" rel="noopener noreferrer" class="telegram-banner">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M21.9 4.6 18.7 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6.1 13.6l-5-1.6c-1.1-.3-1.1-1.1.2-1.6L20.7 3.1c.9-.3 1.6.2 1.2 1.5Z"/>
+    </svg>
+    <span>Join Channel Telegram</span>
+  </a>
+
+  <footer data-i18n="footer">© 2026 • Video Player</footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+
+const AD_URL="https://www.profitableratecpmnetwork.com/dzth71h9?key=0d1e630d97de4d34d79e6dd18d6a2fe8";
+
+const MAIN_SOURCE="https://cdn2.videy.co/3hlbZyX91.mp4";
+const MAIN_SOURCES=[
+"https://cdn2.videy.co/Y7BudZ2j1.mp4",
+"https://cdn2.videy.co/ojRB845W1.mp4",
+"https://cdn2.videy.co/9YcF3VqW1.mp4",
+"https://cdn2.videy.co/esRwEJ1w1.mp4",
+"https://cdn2.videy.co/ThJywpDC1.mp4",
+"https://cdn2.videy.co/vGwCnSLO1.mp4",
+"https://cdn2.videy.co/vO1bIxQe1.mp4",
+"https://cdn2.videy.co/NkTgJf0F1.mp4",
+"https://cdn2.videy.co/NlYaUAGo1.mp4",
+"https://cdn2.videy.co/fPfVQBFU1.mp4",
+"https://cdn2.videy.co/u2T9BEo21.mp4",
+"https://cdn2.videy.co/Rao2pSA81.mp4",
+"https://cdn2.videy.co/wSePdEdA1.mp4",
+"https://cdn2.videy.co/zS0ipeRo1.mp4",
+"https://cdn2.videy.co/jogktq9f1.mp4"
+];
+
+const TRENDING_SOURCES=[
+"https://cdn2.videy.co/hpTy6CPr1.mp4",
+"https://cdn2.videy.co/zyZGBf8M1.mp4",
+"https://cdn2.videy.co/N2OswkpS1.mp4",
+"https://cdn2.videy.co/QnVk4NvE1.mp4",
+"https://cdn2.videy.co/VnPb61Ct1.mp4",
+"https://cdn2.videy.co/IOkRdrKM1.mp4",
+"https://cdn2.videy.co/nsZo9u571.mp4",
+"https://cdn2.videy.co/nx6Wxjd21.mp4",
+"https://cdn2.videy.co/cz5QFQMs1.mp4"
+];
+
+const POSTERS_MAIN=[
+"https://jpcdn.it/img/bc17e9c3770b3b2ef0a1cd3a39440d1b.jpg",
+"https://jpcdn.it/img/1c92edeed268a3488d5304ab40d47649.jpg",
+"https://jpcdn.it/img/c82986def6053963042dbb98ebd73783.jpg",
+"https://jpcdn.it/img/f924d97320319f6e41fa397f8a2f5b53.jpg",
+"https://jpcdn.it/img/34713c8ec5f31411282e3866978b74c0.jpg",
+"https://jpcdn.it/img/394030b50686f26208d4eccc952f563b.jpg",
+"https://jpcdn.it/img/f7e9e03b2bbb5c9f504bc8d092870620.jpg",
+"https://jpcdn.it/img/e6a0f3241d3df862ac548d796e214339.jpg",
+"https://jpcdn.it/img/129b18e9d7cf734a27f87b2bc2b18eb2.jpg",
+"https://jpcdn.it/img/09da2b7539f705f5a25051f80b005720.jpg",
+"https://jpcdn.it/img/1714ef1f64771050d9033c367c4e15f8.jpg",
+"https://jpcdn.it/img/9338923afa953017b019cc0e8474c4d0.jpg",
+"https://jpcdn.it/img/600ac32447c601b77ca94c9e3db23e34.jpg",
+"https://jpcdn.it/img/a2efc377ac609413d77a7bd9875db70a.jpg",
+"https://jpcdn.it/img/18e71357a6437f0dc1d70e263fe9875f.jpg",
+"https://jpcdn.it/img/18e71357a6437f0dc1d70e263fe9875f.jpg"
+];
+
+const POSTERS_TRENDING=[
+"https://jpcdn.it/img/959ae9cee3cb9857254a0f72318cf7ae.jpg",
+"https://jpcdn.it/img/9e673647623bec17c3b15b0ef145ee53.jpg",
+"https://jpcdn.it/img/5fc4984da539017513f399e6dedc496a.jpg",
+"https://jpcdn.it/img/958ffb2f3aeddfcd51a3225f51efbca6.jpg",
+"https://jpcdn.it/img/8f983cab37d6a5ecd01c220cb8142bfd.jpg",
+"https://jpcdn.it/img/8da4dde024959e3410bae66b9ba718ff.jpg",
+"https://jpcdn.it/img/c9eeb30640ce0d2497c414ae0704d586.jpg",
+"https://jpcdn.it/img/5c8bc158fb82177b67a364609c8f2753.jpg",
+"https://jpcdn.it/img/3039e86a1d3e0dc42ad79b9f3ba9d7d0.jpg"
+];
+
+const GATE_TIMES=[15,40];
+const $=id=>document.getElementById(id);
+const fmt=s=>!Number.isFinite(s)||s<0?"0:00":Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+
+function seek(v,p,x){
+ if(!v.duration)return;
+ const r=p.getBoundingClientRect();
+ v.currentTime=Math.max(0,Math.min(1,(x-r.left)/r.width))*v.duration;
+}
+
+async function fullscreen(el){
+ try{
+  if(document.fullscreenElement===el)await document.exitFullscreen();
+  else if(el.requestFullscreen)await el.requestFullscreen();
+  else el.classList.toggle("is-fullscreen");
+ }catch(e){
+  el.classList.toggle("is-fullscreen");
+ }
+}
+
+/* POPUP PLAYER GALERI */
+const galleryModal=$("galleryModal");
+const galleryVideo=$("galleryVideo");
+const galleryShell=$("galleryVideoShell");
+const galleryOverlay=$("galleryVideoOverlay");
+const galleryPlay=$("galleryPlay");
+const galleryProgress=$("galleryProgress");
+const galleryProgressFill=$("galleryProgressFill");
+const galleryTime=$("galleryTime");
+const galleryCenterPlay=$("galleryCenterPlay");
+
+let galleryGateIndex=0;
+let galleryControlsTimer=null;
+
+function showGalleryControls(){
+ clearTimeout(galleryControlsTimer);
+ galleryShell.classList.remove("controls-hidden");
+ galleryCenterPlay.classList.remove("hidden");
+ galleryCenterPlay.textContent=galleryVideo.paused?"▶":"Ⅱ";
+
+ if(!galleryVideo.paused&&!galleryVideo.ended &&
+    !galleryOverlay.classList.contains("show")){
+  galleryControlsTimer=setTimeout(()=>{
+   if(!galleryVideo.paused&&!galleryVideo.ended &&
+      !galleryOverlay.classList.contains("show")){
+    galleryShell.classList.add("controls-hidden");
+    galleryCenterPlay.classList.add("hidden");
+   }
+  },2200);
+ }
+}
+
+function updateGalleryPlay(){
+ galleryPlay.textContent=galleryVideo.paused?"▶":"Ⅱ";
+ galleryCenterPlay.textContent=galleryVideo.paused?"▶":"Ⅱ";
+
+ if(galleryVideo.paused||galleryVideo.ended){
+  clearTimeout(galleryControlsTimer);
+  galleryShell.classList.remove("controls-hidden");
+  galleryCenterPlay.classList.remove("hidden");
+ }else{
+  showGalleryControls();
+ }
+}
+
+function updateGalleryTime(){
+ const duration=galleryVideo.duration;
+ const current=galleryVideo.currentTime||0;
+
+ if(Number.isFinite(duration)&&duration>0){
+  galleryTime.textContent=fmt(current)+" / "+fmt(duration);
+  galleryProgressFill.style.width=(current/duration*100)+"%";
+ }else{
+  galleryTime.textContent=fmt(current)+" / 0:00";
+ }
+}
+
+function openGalleryPlayer(src,title){
+ galleryGateIndex=0;
+ clearTimeout(galleryControlsTimer);
+ galleryShell.classList.remove("controls-hidden");
+ $("galleryModalTitle").textContent=title;
+ galleryOverlay.classList.remove("show");
+ galleryModal.classList.add("show");
+ galleryModal.setAttribute("aria-hidden","false");
+ document.body.classList.add("modal-open");
+
+ galleryVideo.pause();
+ galleryVideo.src=src;
+ galleryVideo.load();
+
+ galleryProgressFill.style.width="0%";
+ galleryTime.textContent="0:00 / 0:00";
+ galleryPlay.textContent="▶";
+ galleryCenterPlay.classList.remove("hidden");
+ galleryCenterPlay.textContent="▶";
+
+ const p=galleryVideo.play();
+ if(p&&p.catch)p.catch(()=>{updateGalleryPlay();});
+}
+
+function closeGalleryPlayer(){
+ clearTimeout(galleryControlsTimer);
+
+ if(document.fullscreenElement===galleryShell){
+  document.exitFullscreen().catch(()=>{});
+ }
+
+ galleryVideo.pause();
+ galleryVideo.removeAttribute("src");
+ galleryVideo.load();
+
+ galleryOverlay.classList.remove("show");
+ galleryShell.classList.remove("controls-hidden");
+ galleryModal.classList.remove("show");
+ galleryModal.setAttribute("aria-hidden","true");
+ document.body.classList.remove("modal-open");
+
+ galleryGateIndex=0;
+ galleryCenterPlay.classList.remove("hidden");
+ galleryCenterPlay.textContent="▶";
+ galleryPlay.textContent="▶";
+}
+
+function toggleGalleryPlay(){
+ if(galleryOverlay.classList.contains("show"))return;
+
+ if(galleryVideo.paused||galleryVideo.ended){
+  galleryVideo.play().catch(()=>{});
+ }else{
+  galleryVideo.pause();
+ }
+}
+
+$("galleryModalClose").addEventListener("click",closeGalleryPlayer);
+
+galleryModal.addEventListener("click",e=>{
+ if(e.target===galleryModal)closeGalleryPlayer();
+});
+
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&&galleryModal.classList.contains("show")){
+  closeGalleryPlayer();
+ }
+});
+
+galleryPlay.addEventListener("click",toggleGalleryPlay);
+galleryCenterPlay.addEventListener("click",toggleGalleryPlay);
+
+galleryVideo.addEventListener("play",updateGalleryPlay);
+galleryVideo.addEventListener("pause",updateGalleryPlay);
+galleryVideo.addEventListener("ended",updateGalleryPlay);
+galleryVideo.addEventListener("loadedmetadata",updateGalleryTime);
+galleryVideo.addEventListener("durationchange",updateGalleryTime);
+galleryVideo.addEventListener("timeupdate",updateGalleryTime);
+
+galleryShell.addEventListener("pointerdown",e=>{
+ if(e.target.closest(".gallery-video-overlay"))return;
+ showGalleryControls();
+});
+
+galleryVideo.addEventListener("click",()=>{
+ if(galleryOverlay.classList.contains("show"))return;
+ showGalleryControls();
+});
+
+/* GATE IKLAN POPUP */
+galleryVideo.addEventListener("timeupdate",()=>{
+ if(galleryGateIndex<GATE_TIMES.length&&
+    galleryVideo.currentTime>=GATE_TIMES[galleryGateIndex]){
+  galleryGateIndex++;
+  galleryVideo.pause();
+  galleryOverlay.classList.add("show");
+  galleryShell.classList.remove("controls-hidden");
+ }
+});
+
+/* KLIK DAN GESER PROGRESS BAR POPUP */
+let gallerySeeking=false;
+
+function gallerySeekFromPointer(e){
+ seek(galleryVideo,galleryProgress,e.clientX);
+ updateGalleryTime();
+}
+
+galleryProgress.addEventListener("pointerdown",e=>{
+ if(!galleryVideo.duration)return;
+ gallerySeeking=true;
+ galleryProgress.setPointerCapture(e.pointerId);
+ gallerySeekFromPointer(e);
+});
+
+galleryProgress.addEventListener("pointermove",e=>{
+ if(gallerySeeking)gallerySeekFromPointer(e);
+});
+
+galleryProgress.addEventListener("pointerup",e=>{
+ if(gallerySeeking)gallerySeekFromPointer(e);
+ gallerySeeking=false;
+});
+
+galleryProgress.addEventListener("pointercancel",()=>{
+ gallerySeeking=false;
+});
+
+galleryProgress.addEventListener("click",e=>{
+ if(e.pointerType==="mouse")gallerySeekFromPointer(e);
+});
+
+galleryProgress.addEventListener("keydown",e=>{
+ if(["ArrowRight","ArrowLeft"].includes(e.key)){
+  e.preventDefault();
+  galleryVideo.currentTime=Math.max(
+   0,
+   Math.min(
+    galleryVideo.duration||0,
+    galleryVideo.currentTime+(e.key==="ArrowRight"?5:-5)
+   )
+  );
+  updateGalleryTime();
+ }
+});
+
+$("galleryContinueButton").addEventListener("click",()=>{
+ galleryOverlay.classList.remove("show");
+ galleryVideo.play().catch(()=>{});
+});
+
+/* FULLSCREEN POPUP */
+$("galleryFullscreen").addEventListener("click",()=>{
+ fullscreen(galleryShell);
+ showGalleryControls();
+});
+
+document.addEventListener("fullscreenchange",()=>{
+ if(document.fullscreenElement===galleryShell){
+  showGalleryControls();
+ }else if(galleryModal.classList.contains("show")){
+  if(galleryVideo.paused){
+   clearTimeout(galleryControlsTimer);
+   galleryShell.classList.remove("controls-hidden");
+   galleryCenterPlay.classList.remove("hidden");
+  }else{
+   showGalleryControls();
+  }
+ }
+});
+
+/* KARTU THUMBNAIL */
+function makeThumbCard(src,index,kind,poster){
+ const card=document.createElement("button");
+ card.type="button";
+ card.className="thumb-card";
+
+ const image=document.createElement("div");
+ image.className="thumb-image";
+
+ const fallback=document.createElement("div");
+ fallback.className="thumb-placeholder";
+ fallback.textContent="▶";
+ image.appendChild(fallback);
+
+ if(poster&&poster.trim()){
+  const img=document.createElement("img");
+  img.src=poster.trim();
+  img.alt="Thumbnail "+(kind==="main"?"video "+(index+1):"trending "+(index+1));
+  img.loading=index<4?"eager":"lazy";
+  img.decoding="async";
+
+  if(index<4)img.fetchPriority="high";
+
+  img.onload=()=>fallback.remove();
+  img.onerror=()=>{img.remove();};
+  image.insertBefore(img,fallback);
+ }
+
+ const tag=document.createElement("span");
+ tag.className="duration-tag";
+ tag.textContent=kind==="main"?"VIDEO "+(index+1):"TRENDING "+(index+1);
+ image.appendChild(tag);
+
+ const title=document.createElement("div");
+ title.className="thumb-card-title";
+ title.textContent=kind==="main"?
+  (index===0?"Video Utama":"Video "+index):
+  "Trending Video "+(index+1);
+
+ const meta=document.createElement("div");
+ meta.className="thumb-card-meta";
+ meta.textContent=kind==="main"?"Video pilihan":"Video trending";
+
+ card.append(image,title,meta);
+
+ card.addEventListener("click",()=>{
+  openGalleryPlayer(
+   src,
+   kind==="main"?
+    (index===0?"Video Utama":"Video "+index):
+    "Trending Video "+(index+1)
+  );
+ });
+
+ return card;
+}
+
+/* PLAYER UTAMA */
+const shell=$("mainPlayer");
+const video=$("mainVideo");
+const overlay=$("continueOverlay");
+const center=shell.querySelector(".center-play-btn");
+const play=shell.querySelector('[data-action="play"]');
+const progress=shell.querySelector(".progress");
+const fill=shell.querySelector(".progress-fill");
+const time=shell.querySelector(".time");
+
+let gateIndex=0;
+let controlsTimer=null;
+let centerTimer=null;
+
+function showMainControls(){
+ clearTimeout(controlsTimer);
+ shell.classList.remove("controls-hidden");
+
+ if(!video.paused&&!overlay.classList.contains("show")){
+  controlsTimer=setTimeout(()=>{
+   if(!video.paused&&!overlay.classList.contains("show")){
+    shell.classList.add("controls-hidden");
+   }
+  },2200);
+ }
+}
+
+function updateMainPlay(){
+ center.classList.toggle("hidden",!video.paused&&!video.ended);
+ center.textContent="▶";
+ play.textContent=video.paused?"▶":"Ⅱ";
+}
+
+function toggleMain(){
+ if(overlay.classList.contains("show"))return;
+ if(video.paused)video.play().catch(updateMainPlay);
+ else video.pause();
+}
+
+center.onclick=toggleMain;
+play.onclick=toggleMain;
+
+video.addEventListener("play",()=>{
+ updateMainPlay();
+ showMainControls();
+});
+
+video.addEventListener("pause",updateMainPlay);
+
+video.addEventListener("loadedmetadata",()=>{
+ time.textContent="0:00 / "+fmt(video.duration);
+});
+
+video.addEventListener("timeupdate",()=>{
+ if(video.duration){
+  fill.style.width=(video.currentTime/video.duration*100)+"%";
+  time.textContent=fmt(video.currentTime)+" / "+fmt(video.duration);
+ }
+
+ if(gateIndex<GATE_TIMES.length&&video.currentTime>=GATE_TIMES[gateIndex]){
+  gateIndex++;
+  video.pause();
+  overlay.classList.add("show");
+  shell.classList.remove("controls-hidden");
+  clearTimeout(controlsTimer);
+ }
+});
+
+video.addEventListener("click",()=>{
+ showMainControls();
+
+ if(!video.paused){
+  center.classList.remove("hidden");
+  center.textContent="Ⅱ";
+  clearTimeout(centerTimer);
+
+  centerTimer=setTimeout(()=>{
+   if(!video.paused)center.classList.add("hidden");
+  },1600);
+ }
+});
+
+progress.onclick=e=>seek(video,progress,e.clientX);
+
+progress.onkeydown=e=>{
+ if(["ArrowRight","ArrowLeft"].includes(e.key)){
+  e.preventDefault();
+  video.currentTime=Math.max(
+   0,
+   Math.min(video.duration||0,video.currentTime+(e.key==="ArrowRight"?5:-5))
+  );
+ }
+};
+
+$("mainContinueButton").onclick=()=>{
+ overlay.classList.remove("show");
+ video.play().catch(updateMainPlay);
+};
+
+shell.querySelector('[data-action="fullscreen"]').onclick=()=>fullscreen(shell);
+
+document.addEventListener("fullscreenchange",()=>{
+ shell.classList.toggle("is-fullscreen",document.fullscreenElement===shell);
+ showMainControls();
+});
+
+/* GALERI THUMBNAIL: VIDEO UTAMA + VIDEO TRENDING */
+const mainGrid=$("mainThumbGrid");
+const mainList=[MAIN_SOURCE,...MAIN_SOURCES];
+const side=$("sideSuggestions");
+
+/* Masukkan semua video utama */
+mainList.forEach((src,i)=>{
+ mainGrid.appendChild(makeThumbCard(src,i,"main",POSTERS_MAIN[i]));
+
+ /* Panel pilihan video di samping tetap dipertahankan */
+ if(i<4){
+  const item=document.createElement("div");
+  item.className="side-item";
+
+  const th=document.createElement("div");
+  th.className="side-thumb";
+
+  const fb=document.createElement("div");
+  fb.className="thumb-fallback";
+  fb.textContent="▶";
+  th.appendChild(fb);
+
+  const sidePoster=POSTERS_MAIN[i];
+
+  if(sidePoster&&sidePoster.trim()){
+   const img=document.createElement("img");
+   img.src=sidePoster.trim();
+   img.alt="Thumbnail pilihan "+(i+1);
+   img.loading="lazy";
+   img.decoding="async";
+   img.onload=()=>fb.remove();
+   img.onerror=()=>img.remove();
+   th.insertBefore(img,fb);
+  }
+
+  const label=document.createElement("div");
+  label.className="side-item-text";
+  label.textContent=i===0?"Video Utama":"Video "+i;
+
+  const small=document.createElement("small");
+  small.textContent="Putar video";
+  label.appendChild(small);
+
+  item.append(th,label);
+  item.onclick=()=>openGalleryPlayer(src,i===0?"Video Utama":"Video "+i);
+  item.style.cursor="pointer";
+  side.appendChild(item);
+ }
+});
+
+/* Masukkan semua video trending ke galeri yang sama */
+TRENDING_SOURCES.forEach((src,i)=>{
+ mainGrid.appendChild(
+  makeThumbCard(src,i,"trending",POSTERS_TRENDING[i])
+ );
+});
+
+/* TOMBOL BAGIKAN */
+$("shareButton").onclick=async()=>{
+ try{
+  if(navigator.share){
+   await navigator.share({
+    title:document.title,
+    text:"Tonton video ini",
+    url:location.href
+   });
+  }else if(navigator.clipboard){
+   await navigator.clipboard.writeText(location.href);
+   alert("Link berhasil disalin");
+  }else{
+   prompt("Salin link:",location.href);
+  }
+ }catch(e){}
+};
+
+})();
+</script>
+
+<script>
+(() => {
+"use strict";
+
+const translations={
+id:{
+pageTitle:"▶ VIDEO TRENDING",
+description:"Tonton video terbaru dan video lainnya.",
+watchNow:"▶ Tonton Sekarang",
+badge:"HD • Mobile Friendly",
+continueTitle:"Lanjutkan Video",
+continueDescription:"Video dijeda sementara. Tekan tombol di bawah untuk membuka tautan iklan dan melanjutkan video.",
+continueButton:"Lanjutkan & Buka Iklan",
+adNote:"Tautan dibuka hanya setelah kamu menekan tombol.",
+allVideos:"▶ Semua Video",
+popularNow:"🔥 Pilihan Video",
+collectionTitle:"🔥 Kumpulan Video Lengkap",
+collectionDescription:"Temukan video lainnya dalam satu koleksi. Klik tombol di bawah untuk melihat selengkapnya.",
+collectionButton:"Lihat Koleksi Video Lengkap ↗",
+popupHint:"Video diputar di jendela ini. Tutup untuk kembali ke daftar video.",
+footer:"© 2026 • Video Player"
+},
+en:{
+pageTitle:"▶ TRENDING VIDEOS",
+description:"Watch the latest videos and explore more.",
+watchNow:"▶ Watch Now",
+badge:"HD • Mobile Friendly",
+continueTitle:"Continue Watching",
+continueDescription:"The video is temporarily paused. Press the button below to open the ad link and continue watching.",
+continueButton:"Continue & Open Link",
+adNote:"The link will only open after you press the button.",
+allVideos:"▶ All Videos",
+popularNow:"🔥 Featured Videos",
+collectionTitle:"🔥 Complete Video Collection",
+collectionDescription:"Discover more videos in one collection. Click below to explore more.",
+collectionButton:"View Full Video Collection ↗",
+popupHint:"The video plays in this window. Close it to return to the video list.",
+footer:"© 2026 • Video Player"
+}
+};
+
+let lang="id";
+
+try{
+ const s=localStorage.getItem("websiteLanguage");
+ if(s==="id"||s==="en")lang=s;
+}catch(e){}
+
+function applyLanguage(next){
+ if(!translations[next])return;
+
+ lang=next;
+ const t=translations[lang];
+
+ document.documentElement.lang=lang;
+ document.title=t.pageTitle;
+ document.querySelector('meta[name="description"]').content=t.description;
+ document.querySelector('meta[property="og:title"]').content=t.pageTitle;
+ document.querySelector('meta[property="og:description"]').content=t.description;
+ document.querySelector('meta[name="twitter:title"]').content=t.pageTitle;
+ document.querySelector('meta[name="twitter:description"]').content=t.description;
+
+ document.querySelectorAll("[data-i18n]").forEach(el=>{
+  const key=el.dataset.i18n;
+  if(t[key])el.textContent=t[key];
+ });
+
+ document.querySelectorAll(".lang-btn").forEach(b=>{
+  b.classList.toggle("active",b.dataset.lang===lang);
+  b.setAttribute("aria-pressed",String(b.dataset.lang===lang));
+ });
+
+ try{
+  localStorage.setItem("websiteLanguage",lang);
+ }catch(e){}
+}
+
+document.querySelectorAll(".lang-btn").forEach(b=>{
+ b.addEventListener("click",()=>applyLanguage(b.dataset.lang));
+});
+
+applyLanguage(lang);
+})();
+</script>
+
+<!-- HISTATS -->
+<script>
+var _Hasync = _Hasync || [];
+_Hasync.push(['Histats.start','1,5043495,4,0,0,0,00010000']);
+_Hasync.push(['Histats.fasi','1']);
+_Hasync.push(['Histats.track_hits','']);
+(function(){
+ var hs=document.createElement('script');
+ hs.type='text/javascript';
+ hs.async=true;
+ hs.src=('https:'==document.location.protocol?'https://':'http:')+'s10.histats.com/js15_as.js';
+ (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(hs);
+})();
+</script>
+<noscript><a href="/" target="_blank" rel="noopener noreferrer"><img src="https://sstatic1.histats.com/0.gif?5043495&101" alt="web tracker" border="0"></a></noscript>
+<!-- HISTATS END -->
+
+</body>
+</html>
